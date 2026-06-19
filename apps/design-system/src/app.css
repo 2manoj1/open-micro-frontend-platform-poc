@@ -1,0 +1,201 @@
+.ds-app {
+  color: var(--omf-color-text, #172033);
+  font-family: var(--omf-font-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+.ds-hero {
+  background: linear-gradient(135deg, var(--omf-color-brand, #2563eb), var(--omf-color-ai, #0891b2));
+  border-bottom: 4px solid var(--omf-color-accent, #16a34a);
+  color: #fff;
+  padding: 24px;
+}
+
+.ds-hero span {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.ds-hero h1 {
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: 0;
+  margin: 0 0 8px;
+}
+
+.ds-hero p {
+  color: rgb(255 255 255 / 84%);
+  margin: 0;
+  max-width: 760px;
+}
+
+.ds-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  padding: 24px;
+}
+
+.ds-token,
+.ds-panel {
+  background: var(--omf-color-surface-muted, #f8fafc);
+  border: 1px solid var(--omf-color-border, #dbe3ef);
+  border-radius: var(--omf-radius-md, 8px);
+  box-shadow: var(--omf-shadow-panel, none);
+  padding: 16px;
+}
+
+.ds-token i {
+  border: 1px solid rgb(15 23 42 / 12%);
+  border-radius: var(--omf-radius-sm, 6px);
+  display: block;
+  height: 42px;
+  margin-bottom: 12px;
+}
+
+.ds-token span,
+.ds-panel span {
+  color: var(--omf-color-text-muted, #64748b);
+  display: block;
+  font-size: 13px;
+}
+
+.ds-token strong,
+.ds-panel strong {
+  color: var(--omf-color-text, #172033);
+  display: block;
+  margin-top: 4px;
+}
+
+.ds-token code {
+  color: var(--omf-color-brand-strong, #1d4ed8);
+  display: block;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.ds-panel {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin: 0 24px 24px;
+}
+
+.ds-panel p {
+  color: var(--omf-color-text-muted, #64748b);
+  margin: 6px 0 0;
+}
+
+.ds-panel button {
+  background: var(--omf-color-brand, #2563eb);
+  border: 0;
+  border-radius: var(--omf-radius-sm, 6px);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .ds-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.omf-runtime-header {
+  align-items: center;
+  background: color-mix(in srgb, var(--omf-color-surface, #fff) 94%, transparent);
+  border: 1px solid var(--omf-color-border, #dbe3ef);
+  border-radius: var(--omf-radius-lg, 12px);
+  box-shadow: var(--omf-shadow-panel, none);
+  color: var(--omf-color-text, #172033);
+  display: flex;
+  font-family: var(--omf-font-sans, ui-sans-serif, system-ui, sans-serif);
+  gap: 20px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.omf-runtime-brand {
+  align-items: center;
+  color: inherit;
+  display: inline-flex;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.omf-runtime-brand span {
+  align-items: center;
+  background: var(--omf-color-brand, #2563eb);
+  border-radius: var(--omf-radius-md, 8px);
+  color: #fff;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  height: 36px;
+  justify-content: center;
+  width: 42px;
+}
+
+.omf-runtime-brand strong {
+  font-size: 15px;
+}
+
+.omf-runtime-header nav {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.omf-runtime-header nav a {
+  border: 1px solid transparent;
+  border-radius: var(--omf-radius-sm, 6px);
+  color: var(--omf-color-text-muted, #64748b);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 10px;
+  text-decoration: none;
+}
+
+.omf-runtime-header nav a[aria-current="page"] {
+  background: var(--omf-color-brand, #2563eb);
+  color: #fff;
+}
+
+.omf-runtime-footer {
+  align-items: center;
+  background: var(--omf-color-surface, #fff);
+  border: 1px solid var(--omf-color-border, #dbe3ef);
+  border-radius: var(--omf-radius-md, 8px);
+  color: var(--omf-color-text-muted, #64748b);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--omf-font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 13px;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.omf-runtime-footer span:first-child {
+  color: var(--omf-color-text, #172033);
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .omf-runtime-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .omf-runtime-header nav {
+    justify-content: flex-start;
+  }
+}

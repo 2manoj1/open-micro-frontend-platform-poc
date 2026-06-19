@@ -1,6 +1,6 @@
 'use client';
 
-import { Boxes, Home, LogOut, Network } from 'lucide-react';
+import { Boxes, Columns2, Home, LogOut, Network } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,16 @@ export default function DashboardLayout({
               >
                 <Boxes className="h-4 w-4" aria-hidden="true" />
                 Dashboard
+              </Button>
+            </Link>
+            <Link href="/dashboard/composition">
+              <Button
+                className="gap-2 rounded-md"
+                variant={pathname === '/dashboard/composition' ? 'default' : 'ghost'}
+                size="sm"
+              >
+                <Columns2 className="h-4 w-4" aria-hidden="true" />
+                Compose
               </Button>
             </Link>
 

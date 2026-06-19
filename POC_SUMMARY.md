@@ -28,6 +28,7 @@ The shell registry currently includes:
 | AI Assistant App | `5177` | Web Component | CSR |
 | Vue Commerce App | `5178` | Web Component | CSR |
 | Angular Operations App | `5179` | Web Component | CSR |
+| Design System Contract | `5180` | Web Component | CSR |
 | Knowledge Center | Shell static asset | HTML Fragment | RSC / SSG / Static |
 
 Each micro app owns its build, styles, manifest, runtime server, and deployment lifecycle. The shell only needs registry metadata and runtime URLs.

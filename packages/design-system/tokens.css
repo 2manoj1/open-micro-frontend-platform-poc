@@ -1,0 +1,25 @@
+:root {
+  --omf-ds-version: "1.0.0";
+  --omf-color-brand: #2563eb;
+  --omf-color-brand-strong: #1d4ed8;
+  --omf-color-accent: #16a34a;
+  --omf-color-ai: #0891b2;
+  --omf-color-surface: #ffffff;
+  --omf-color-surface-muted: #f8fafc;
+  --omf-color-border: #dbe3ef;
+  --omf-color-text: #172033;
+  --omf-color-text-muted: #64748b;
+  --omf-radius-sm: 6px;
+  --omf-radius-md: 8px;
+  --omf-radius-lg: 12px;
+  --omf-shadow-panel: 0 18px 40px rgb(15 23 42 / 8%);
+  --omf-font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+  --omf-color-surface: #0f172a;
+  --omf-color-surface-muted: #111827;
+  --omf-color-border: #243244;
+  --omf-color-text: #f8fafc;
+  --omf-color-text-muted: #94a3b8;
+}

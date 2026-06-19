@@ -53,6 +53,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN ?? 'http://127.0.0.1:5177',
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN ?? 'http://127.0.0.1:5178',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN ?? 'http://127.0.0.1:5179',
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ORIGIN ?? 'http://127.0.0.1:5180',
   },
   localAppEntryPaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH ?? '/src/main.tsx',
@@ -62,6 +63,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH ?? '/src/main.tsx',
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH ?? '/src/main.ts',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH ?? '/src/main.ts',
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ENTRY_PATH ?? '/src/main.ts',
   },
   localAppStylePaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH ?? '',
@@ -71,6 +73,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH ?? '',
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH ?? '',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH ?? '',
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH ?? '',
   },
   localAppManifestPaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_MANIFEST_PATH ?? '/manifest.json',
@@ -80,6 +83,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_MANIFEST_PATH ?? '/manifest.json',
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_MANIFEST_PATH ?? '/manifest.json',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_MANIFEST_PATH ?? '/manifest.json',
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_MANIFEST_PATH ?? '/manifest.json',
   },
 }
 
@@ -222,6 +226,25 @@ export const localMicroAppDefinitions: LocalMicroAppDefinition[] = [
       tools: ['ops.publishWorkflow', 'ops.remediateIncident'],
       resources: ['ops.incident', 'ops.workflow'],
       eventNamespaces: ['ops.*', 'mcp.tool.*'],
+    },
+  },
+  {
+    id: 'design-system',
+    name: 'Design System Contract',
+    description: 'Shell-owned Tailwind-ready design tokens consumed once across every micro app.',
+    domain: 'Platform',
+    icon: 'Palette',
+    accent: 'blue',
+    status: 'Ready',
+    framework: 'web-component',
+    rendering: ['csr'],
+    runtime: { type: 'web-component', tagName: 'micro-design-system-app' },
+    version: '1.0.0',
+    owner: 'Platform Design',
+    permissions: ['design-system:read'],
+    mcp: {
+      resources: ['design.tokens', 'design.contract'],
+      eventNamespaces: ['design-system.*', 'theme.*'],
     },
   },
   {

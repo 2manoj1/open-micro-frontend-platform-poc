@@ -6,6 +6,7 @@ settings:
 
 overrides:
   hono: 4.12.25
+  typescript: 6.0.3
 
 importers:
 
@@ -65,8 +66,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
@@ -93,8 +94,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
@@ -121,8 +122,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
@@ -198,8 +199,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
@@ -226,14 +227,33 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.0.16
+        version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
+
+  apps/design-system:
+    dependencies:
+      '@micro-frontend/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
+      '@micro-frontend/platform-sdk':
+        specifier: workspace:*
+        version: link:../../packages/platform-sdk
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
 
   apps/shell:
     dependencies:
+      '@micro-frontend/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
       '@micro-frontend/platform-sdk':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
@@ -275,8 +295,8 @@ importers:
         specifier: ^4.2.0
         version: 4.3.1
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
 
   apps/vue-commerce:
     dependencies:
@@ -285,26 +305,32 @@ importers:
         version: link:../../packages/platform-sdk
       vue:
         specifier: 3.5.38
-        version: 3.5.38(typescript@5.9.3)
+        version: 3.5.38(typescript@6.0.3)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: 6.0.7
-        version: 6.0.7(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))(vue@3.5.38(typescript@5.9.3))
+        version: 6.0.7(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))(vue@3.5.38(typescript@6.0.3))
       typescript:
-        specifier: 5.9.3
-        version: 5.9.3
+        specifier: 6.0.3
+        version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
       vue-tsc:
         specifier: 3.2.2
-        version: 3.2.2(typescript@5.9.3)
+        version: 3.2.2(typescript@6.0.3)
+
+  packages/design-system:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   packages/platform-sdk:
     devDependencies:
       typescript:
-        specifier: 5.7.3
-        version: 5.7.3
+        specifier: 6.0.3
+        version: 6.0.3
 
   tools/platform-e2e:
     devDependencies:
@@ -379,7 +405,7 @@ packages:
       postcss: ^8.4.0
       tailwindcss: ^2.0.0 || ^3.0.0 || ^4.0.0
       tslib: ^2.3.0
-      typescript: '>=6.0 <6.1'
+      typescript: 6.0.3
       vitest: ^4.0.8
     peerDependenciesMeta:
       '@angular/core':
@@ -422,7 +448,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@angular/compiler': 22.0.2
-      typescript: '>=6.0 <6.1'
+      typescript: 6.0.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -2679,16 +2705,6 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  typescript@5.7.3:
-    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
@@ -2793,12 +2809,12 @@ packages:
     resolution: {integrity: sha512-r9YSia/VgGwmbbfC06hDdAatH634XJ9nVl6Zrnz1iK4ucp8Wu78kawplXnIDa3MSu1XdQQePTHLXYwPDWn+nyQ==}
     hasBin: true
     peerDependencies:
-      typescript: '>=5.0.0'
+      typescript: 6.0.3
 
   vue@3.5.38:
     resolution: {integrity: sha512-vAMKHfImQlYSy0C+PBue4s3ERZ2xGKfgZg5GXAsLInq1dyh2H78ILVP5sK0KPFPVW4kv+OGCIvBEondcjpZp7A==}
     peerDependencies:
-      typescript: '*'
+      typescript: 6.0.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -3930,11 +3946,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
 
-  '@vitejs/plugin-vue@6.0.7(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))(vue@3.5.38(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.7(vite@8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4))(vue@3.5.38(typescript@6.0.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@24.10.4)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.99.0)(tsx@4.22.4)
-      vue: 3.5.38(typescript@5.9.3)
+      vue: 3.5.38(typescript@6.0.3)
 
   '@volar/language-core@2.4.27':
     dependencies:
@@ -4004,11 +4020,11 @@ snapshots:
       '@vue/shared': 3.5.38
       csstype: 3.2.3
 
-  '@vue/server-renderer@3.5.38(vue@3.5.38(typescript@5.9.3))':
+  '@vue/server-renderer@3.5.38(vue@3.5.38(typescript@6.0.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.38
       '@vue/shared': 3.5.38
-      vue: 3.5.38(typescript@5.9.3)
+      vue: 3.5.38(typescript@6.0.3)
 
   '@vue/shared@3.5.38': {}
 
@@ -4800,10 +4816,6 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  typescript@5.7.3: {}
-
-  typescript@5.9.3: {}
-
   typescript@6.0.3: {}
 
   undici-types@7.16.0: {}
@@ -4847,21 +4859,21 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
-  vue-tsc@3.2.2(typescript@5.9.3):
+  vue-tsc@3.2.2(typescript@6.0.3):
     dependencies:
       '@volar/typescript': 2.4.27
       '@vue/language-core': 3.2.2
-      typescript: 5.9.3
+      typescript: 6.0.3
 
-  vue@3.5.38(typescript@5.9.3):
+  vue@3.5.38(typescript@6.0.3):
     dependencies:
       '@vue/compiler-dom': 3.5.38
       '@vue/compiler-sfc': 3.5.38
       '@vue/runtime-dom': 3.5.38
-      '@vue/server-renderer': 3.5.38(vue@3.5.38(typescript@5.9.3))
+      '@vue/server-renderer': 3.5.38(vue@3.5.38(typescript@6.0.3))
       '@vue/shared': 3.5.38
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   watchpack@2.5.1:
     dependencies:

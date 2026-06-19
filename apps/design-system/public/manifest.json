@@ -1,0 +1,16 @@
+{
+  "id": "design-system",
+  "name": "Design System Contract",
+  "version": "1.0.0",
+  "runtime": {
+    "type": "web-component",
+    "tagName": "micro-design-system-app"
+  },
+  "entry": "/src/main.ts",
+  "styles": ["/design-system-app.css"],
+  "singleton": {
+    "package": "@micro-frontend/design-system",
+    "version": "1.0.0",
+    "owner": "shell"
+  }
+}

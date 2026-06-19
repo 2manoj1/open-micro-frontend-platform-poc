@@ -30,6 +30,7 @@ Micro app ports:
 - AI Assistant: `http://127.0.0.1:5177`
 - Vue Commerce: `http://127.0.0.1:5178`
 - Angular Operations: `http://127.0.0.1:5179`
+- Design System Contract: `http://127.0.0.1:5180`
 
 Open the shell, go to `/dashboard`, and launch any registered micro app.
 

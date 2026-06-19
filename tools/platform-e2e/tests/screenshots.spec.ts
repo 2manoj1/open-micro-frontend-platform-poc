@@ -3,6 +3,7 @@ import { test } from "@playwright/test";
 const routes = [
   "/",
   "/dashboard",
+  "/dashboard/composition",
   "/dashboard/customer",
   "/dashboard/billing",
   "/dashboard/analytics",
@@ -10,6 +11,7 @@ const routes = [
   "/dashboard/ai-assistant",
   "/dashboard/vue-commerce",
   "/dashboard/angular-ops",
+  "/dashboard/design-system",
   "/dashboard/knowledge",
 ];
 

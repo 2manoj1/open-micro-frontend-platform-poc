@@ -5,10 +5,10 @@ node_modules
 dist
 **/dist
 reports
+**/reports
 screenshots
-test-results
-playwright-report
-*.tgz
+**/screenshots
 .git
 .DS_Store
-*.log
+*.tsbuildinfo
+apps/shell/package-lock.json

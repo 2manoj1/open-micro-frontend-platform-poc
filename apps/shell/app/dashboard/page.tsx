@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Activity, BookOpen, Bot, ChartNoAxesCombined, CreditCard, DatabaseZap, Layers3, MessageSquareText, Plug, Radio, ServerCog, ShieldCheck, ShoppingCart, Sparkles, Users, Workflow, type LucideIcon } from 'lucide-react';
+import { Activity, BookOpen, Bot, ChartNoAxesCombined, CreditCard, DatabaseZap, Layers3, MessageSquareText, Palette, Plug, Radio, ServerCog, ShieldCheck, ShoppingCart, Sparkles, Users, Workflow, type LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getMicroApps } from '@/lib/micro-apps';
@@ -12,6 +12,7 @@ const iconMap = {
   Bot,
   ChartNoAxesCombined,
   CreditCard,
+  Palette,
   ShoppingCart,
   ShieldCheck,
   Users,

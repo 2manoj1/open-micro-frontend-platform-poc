@@ -32,6 +32,7 @@ The demo shell registry includes:
 - AI Assistant App, port `5177`
 - Vue Commerce App, port `5178`
 - Angular Operations App, port `5179`
+- Design System Contract App, port `5180`
 - Knowledge Center static HTML fragment, served by the shell
 
 Each app owns its UI, manifest, runtime server, styles, and deployment lifecycle. The shell owns discovery, composition, navigation, platform context, error isolation, and the registry client.
@@ -87,6 +88,19 @@ SDK entrypoints:
 - `@micro-frontend/platform-sdk/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
 - `@micro-frontend/platform-sdk/event-bus`: async browser event bus and MCP-oriented event names.
 - `@micro-frontend/platform-sdk/observability`: normalized error reporting and configurable loggers.
+
+## Shared Design System Without Module Federation
+
+This POC uses a shell-owned singleton design contract instead of Webpack Module Federation singletons. The shell imports `@micro-frontend/design-system/tokens.css` once at the root, and every micro app consumes the same `--omf-*` CSS variables at runtime. Framework apps can still keep their own rendering stack, but design tokens, theme, density, and brand decisions come from the platform contract.
+
+For shared JavaScript packages, treat them as contracts:
+
+- Small stable contracts such as tokens, event names, types, and SDK helpers should be peer/version governed by the registry and CI.
+- Heavy framework runtimes should not be forced into a global singleton across React, Vue, and Angular. Independent apps can own those versions, and the platform should measure bundle budgets.
+- Shared UI should prefer standards-first delivery: CSS variables, web components, generated CSS, assets, and typed contracts. This works across repos and across frameworks.
+- If a package must be singleton, publish it as a platform package, enforce compatible semver in manifests, and let the shell provide it once.
+
+The `Design System Contract` micro app demonstrates this model in the dashboard.
 
 Micro app wrapper example:
 
@@ -189,7 +203,7 @@ pnpm --filter @micro-frontend/platform-sdk pack --dry-run
 Verified locally:
 
 - Shell dashboard renders.
-- Customer, Billing, Analytics, Admin, AI Assistant, Vue Commerce, and Angular Operations routes mount end to end.
+- Customer, Billing, Analytics, Admin, AI Assistant, Vue Commerce, Angular Operations, and Design System routes mount end to end.
 - Knowledge Center static HTML fragment renders through the RSC path.
 - Runtime error fallback and shell error logging contracts are wired.
 - MCPApps tools, resources, prompts, and event namespaces are visible in the registry UI.
@@ -208,8 +222,10 @@ apps/
   ai-assistant/          Vite React Web Component with MCP event demo
   vue-commerce/          Vite Vue Web Component
   angular-ops/           Vite Angular Elements Web Component
+  design-system/         Vite Web Component for shared token contract
 packages/
   platform-sdk/          Event bus, registry, runtime, observability, and loader SDK
+  design-system/         Singleton token package consumed by shell and apps
 docs/
   assets/                Architecture image and future docs assets
 ```
