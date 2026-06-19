@@ -73,7 +73,10 @@ function toMicroAppConfig(definition: LocalMicroAppDefinition): MicroAppConfig {
         logLevel: 'info',
       },
     },
-    dev: definition.runtime.type === 'web-component' ? { viteReactRefresh: shellPlatformConfig.devViteReactRefresh } : undefined,
+    dev:
+      definition.runtime.type === 'web-component' && definition.framework === 'react'
+        ? { viteReactRefresh: shellPlatformConfig.devViteReactRefresh }
+        : undefined,
     componentTag: definition.runtime.type === 'web-component' ? definition.runtime.tagName : undefined,
     url: entryUrl,
   }

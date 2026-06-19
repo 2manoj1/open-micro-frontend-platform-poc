@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "dev": "pnpm --filter @micro-frontend/shell dev",
-    "dev:all": "pnpm --parallel --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app dev",
-    "dev:all:ci": "pnpm --filter @micro-frontend/customer-app dev --host 127.0.0.1 --port 5173 & pnpm --filter @micro-frontend/billing-app dev --host 127.0.0.1 --port 5174 & pnpm --filter @micro-frontend/analytics-app dev --host 127.0.0.1 --port 5175 & pnpm --filter @micro-frontend/admin-app dev --host 127.0.0.1 --port 5176 & pnpm --filter @micro-frontend/ai-assistant-app dev --host 127.0.0.1 --port 5177 & pnpm --filter @micro-frontend/shell dev --hostname 127.0.0.1 --port 3001",
-    "build": "pnpm -r --filter @micro-frontend/platform-sdk --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app build",
+    "dev:all": "pnpm --parallel --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app dev",
+    "dev:all:ci": "pnpm --filter @micro-frontend/customer-app dev --host 127.0.0.1 --port 5173 & pnpm --filter @micro-frontend/billing-app dev --host 127.0.0.1 --port 5174 & pnpm --filter @micro-frontend/analytics-app dev --host 127.0.0.1 --port 5175 & pnpm --filter @micro-frontend/admin-app dev --host 127.0.0.1 --port 5176 & pnpm --filter @micro-frontend/ai-assistant-app dev --host 127.0.0.1 --port 5177 & pnpm --filter @micro-frontend/vue-commerce-app dev --host 127.0.0.1 --port 5178 & pnpm --filter @micro-frontend/angular-ops-app dev --host 127.0.0.1 --port 5179 & pnpm --filter @micro-frontend/shell dev --hostname 127.0.0.1 --port 3001",
+    "build": "pnpm -r --filter @micro-frontend/platform-sdk --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app build",
     "start": "pnpm --filter @micro-frontend/shell start",
     "lint": "pnpm -r --filter @micro-frontend/platform-sdk --filter @micro-frontend/shell lint",
     "e2e": "pnpm --filter @micro-frontend/platform-e2e test",
@@ -21,10 +21,10 @@
     "docker:build": "docker compose build",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
-    "podman:build": "for service in customer billing analytics admin ai-assistant shell; do podman compose build \"$service\" || exit 1; done",
+    "podman:build": "for service in customer billing analytics admin ai-assistant vue-commerce angular-ops shell; do podman compose build \"$service\" || exit 1; done",
     "podman:up": "pnpm podman:build && podman compose up -d",
     "podman:down": "podman compose down",
-    "podman:logs": "podman compose logs -f shell customer billing analytics admin ai-assistant"
+    "podman:logs": "podman compose logs -f shell customer billing analytics admin ai-assistant vue-commerce angular-ops"
   },
   "pnpm": {
     "overrides": {

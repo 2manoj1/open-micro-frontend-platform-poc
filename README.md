@@ -30,6 +30,8 @@ The demo shell registry includes:
 - Analytics App, port `5175`
 - Admin App, port `5176`
 - AI Assistant App, port `5177`
+- Vue Commerce App, port `5178`
+- Angular Operations App, port `5179`
 - Knowledge Center static HTML fragment, served by the shell
 
 Each app owns its UI, manifest, runtime server, styles, and deployment lifecycle. The shell owns discovery, composition, navigation, platform context, error isolation, and the registry client.
@@ -187,7 +189,7 @@ pnpm --filter @micro-frontend/platform-sdk pack --dry-run
 Verified locally:
 
 - Shell dashboard renders.
-- Customer, Billing, Analytics, Admin, and AI Assistant routes mount end to end.
+- Customer, Billing, Analytics, Admin, AI Assistant, Vue Commerce, and Angular Operations routes mount end to end.
 - Knowledge Center static HTML fragment renders through the RSC path.
 - Runtime error fallback and shell error logging contracts are wired.
 - MCPApps tools, resources, prompts, and event namespaces are visible in the registry UI.
@@ -204,6 +206,8 @@ apps/
   analytics/             Vite React Web Component
   admin/                 Vite React Web Component
   ai-assistant/          Vite React Web Component with MCP event demo
+  vue-commerce/          Vite Vue Web Component
+  angular-ops/           Vite Angular Elements Web Component
 packages/
   platform-sdk/          Event bus, registry, runtime, observability, and loader SDK
 docs/

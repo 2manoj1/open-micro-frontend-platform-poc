@@ -37,6 +37,8 @@ Services:
 | Analytics | `http://localhost:5175` | `/analytics-app.js` |
 | Admin | `http://localhost:5176` | `/admin-app.js` |
 | AI Assistant | `http://localhost:5177` | `/ai-assistant-app.js` |
+| Vue Commerce | `http://localhost:5178` | `/vue-commerce-app.js` |
+| Angular Operations | `http://localhost:5179` | `/angular-ops-app.js` |
 
 The shell also loads each app's production stylesheet:
 
@@ -45,6 +47,8 @@ The shell also loads each app's production stylesheet:
 - `/analytics-app.css`
 - `/admin-app.css`
 - `/ai-assistant-app.css`
+- `/vue-commerce-app.css`
+- `/angular-ops-app.css`
 
 Stop:
 
@@ -106,18 +110,24 @@ NEXT_PUBLIC_BILLING_APP_ORIGIN=https://billing-app.example.com
 NEXT_PUBLIC_ANALYTICS_APP_ORIGIN=https://analytics-app.example.com
 NEXT_PUBLIC_ADMIN_APP_ORIGIN=https://admin-app.example.com
 NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN=https://ai-assistant-app.example.com
+NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN=https://vue-commerce-app.example.com
+NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN=https://angular-ops-app.example.com
 
 NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH=/customer-app.js
 NEXT_PUBLIC_BILLING_APP_ENTRY_PATH=/billing-app.js
 NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH=/analytics-app.js
 NEXT_PUBLIC_ADMIN_APP_ENTRY_PATH=/admin-app.js
 NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH=/ai-assistant-app.js
+NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH=/vue-commerce-app.js
+NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH=/angular-ops-app.js
 
 NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH=/customer-app.css
 NEXT_PUBLIC_BILLING_APP_STYLE_PATH=/billing-app.css
 NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH=/analytics-app.css
 NEXT_PUBLIC_ADMIN_APP_STYLE_PATH=/admin-app.css
 NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH=/ai-assistant-app.css
+NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH=/vue-commerce-app.css
+NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH=/angular-ops-app.css
 ```
 
 Keep `NEXT_PUBLIC_MICRO_APP_VITE_REFRESH=false` for production/static remotes.

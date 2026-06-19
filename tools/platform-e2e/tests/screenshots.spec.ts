@@ -8,6 +8,8 @@ const routes = [
   "/dashboard/analytics",
   "/dashboard/admin",
   "/dashboard/ai-assistant",
+  "/dashboard/vue-commerce",
+  "/dashboard/angular-ops",
   "/dashboard/knowledge",
 ];
 

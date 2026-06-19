@@ -6,7 +6,7 @@ This repository is now an MVP-ready proof of concept for a future-ready micro fr
 
 - Next.js `16.2.9` shell with App Router, RSC routes, Suspense boundaries, and client runtime islands
 - Publishable SDK package under `packages/platform-sdk`
-- Five independently runnable Vite React micro apps
+- Seven independently runnable Vite micro apps across React, Vue, and Angular
 - Static HTML fragment remote rendered through the shell's RSC path
 - No webpack Module Federation or build-time app coupling
 - Framework-neutral runtime contracts for React, Vue, Angular, static, SSR, SSG, ISR, iframe, and custom remotes
@@ -26,6 +26,8 @@ The shell registry currently includes:
 | Analytics App | `5175` | Web Component | CSR |
 | Admin App | `5176` | Web Component | CSR |
 | AI Assistant App | `5177` | Web Component | CSR |
+| Vue Commerce App | `5178` | Web Component | CSR |
+| Angular Operations App | `5179` | Web Component | CSR |
 | Knowledge Center | Shell static asset | HTML Fragment | RSC / SSG / Static |
 
 Each micro app owns its build, styles, manifest, runtime server, and deployment lifecycle. The shell only needs registry metadata and runtime URLs.
@@ -67,6 +69,7 @@ The MVP uses browser `CustomEvent`. A production deployment can bridge the same 
 | SSR/SSG/ISR path | Done | `html-fragment` remotes can be fetched server-side with cache/revalidate policy |
 | CSR path | Done | Client dynamic island mounts runtime web components or ESM modules |
 | AI-native app support | Done | AI Assistant micro app is registered, served, mounted, and styled |
+| Framework proof | Done | React, Vue 3, and Angular 22 remotes all mount through the same shell SDK path |
 | MCPApps direction | Done | Manifest-first registry, tools, resources, prompts, event namespaces, permissions, versions, URLs, and injectable discovery |
 | Error isolation | Done | Runtime island and HTML fragment fallback surfaces log failures without taking down the shell |
 | Configurable platform | Done | Registry URL, app origins, registry refresh, local apps, Vite refresh, and log endpoint are centralized |

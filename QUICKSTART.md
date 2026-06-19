@@ -28,6 +28,8 @@ Micro app ports:
 - Analytics: `http://127.0.0.1:5175`
 - Admin: `http://127.0.0.1:5176`
 - AI Assistant: `http://127.0.0.1:5177`
+- Vue Commerce: `http://127.0.0.1:5178`
+- Angular Operations: `http://127.0.0.1:5179`
 
 Open the shell, go to `/dashboard`, and launch any registered micro app.
 
@@ -81,7 +83,7 @@ pnpm build
 pnpm lint
 ```
 
-`pnpm build` builds the Next shell and all five Vite micro apps. `pnpm lint` runs the shell TypeScript no-emit check.
+`pnpm build` builds the Next shell and all seven Vite micro apps. `pnpm lint` runs the shell TypeScript no-emit check.
 
 ## Key Files
 

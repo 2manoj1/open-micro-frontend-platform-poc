@@ -65,6 +65,30 @@ services:
     ports:
       - '5177:5177'
 
+  vue-commerce:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/vue-commerce-app'
+    environment:
+      APP_FILTER: '@micro-frontend/vue-commerce-app'
+      APP_KIND: remote
+      PORT: 5178
+    ports:
+      - '5178:5178'
+
+  angular-ops:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/angular-ops-app'
+    environment:
+      APP_FILTER: '@micro-frontend/angular-ops-app'
+      APP_KIND: remote
+      PORT: 5179
+    ports:
+      - '5179:5179'
+
   shell:
     build:
       <<: *app-build
@@ -76,6 +100,8 @@ services:
       - analytics
       - admin
       - ai-assistant
+      - vue-commerce
+      - angular-ops
     environment:
       APP_FILTER: '@micro-frontend/shell'
       APP_KIND: shell
@@ -87,15 +113,21 @@ services:
       NEXT_PUBLIC_ANALYTICS_APP_ORIGIN: http://localhost:5175
       NEXT_PUBLIC_ADMIN_APP_ORIGIN: http://localhost:5176
       NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN: http://localhost:5177
+      NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN: http://localhost:5178
+      NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN: http://localhost:5179
       NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH: /customer-app.js
       NEXT_PUBLIC_BILLING_APP_ENTRY_PATH: /billing-app.js
       NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH: /analytics-app.js
       NEXT_PUBLIC_ADMIN_APP_ENTRY_PATH: /admin-app.js
       NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH: /ai-assistant-app.js
+      NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH: /vue-commerce-app.js
+      NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH: /angular-ops-app.js
       NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH: /customer-app.css
       NEXT_PUBLIC_BILLING_APP_STYLE_PATH: /billing-app.css
       NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH: /analytics-app.css
       NEXT_PUBLIC_ADMIN_APP_STYLE_PATH: /admin-app.css
       NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH: /ai-assistant-app.css
+      NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH: /vue-commerce-app.css
+      NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH: /angular-ops-app.css
     ports:
       - '3001:3001'
