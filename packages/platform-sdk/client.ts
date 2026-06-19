@@ -31,6 +31,18 @@ export function defineMicroAppElement(
       try {
         const mounted = await lifecycle.mount(this, context);
         this.cleanup = typeof mounted === 'function' ? mounted : undefined;
+        await nextPaint();
+        this.dispatchEvent(
+          new CustomEvent('micro-app:ready', {
+            bubbles: true,
+            composed: true,
+            detail: {
+              appId: context.app.id,
+              tagName,
+              timestamp: Date.now(),
+            },
+          })
+        );
         eventBus.emit(PlatformEvents.APP_LOADED, context.app.id, { tagName });
       } catch (error) {
         reportMicroAppError({
@@ -93,6 +105,12 @@ export function defineMicroAppElement(
   return PlatformMicroAppElement;
 }
 
+function nextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
+}
+
 export function emitMicroAppEvent(eventType: string, source: string, payload: unknown): void {
   eventBus.emit(eventType, source, payload);
 }
@@ -123,10 +141,12 @@ export function emitMcpAppEvent(
 export {
   callMcpHostTool,
   createMcpAppBridge,
+  connectOfficialMcpAppRuntime,
   getDefaultMcpAppBridge,
   initializeMcpAppBridge,
   notifyMcpHost,
   requestMcpHost,
+  type OfficialMcpAppRuntime,
 } from './mcp-app.js';
 export { isWebMcpAvailable, registerWebMcpTool } from './web-mcp.js';
 

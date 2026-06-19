@@ -1,0 +1,60 @@
+tunnel: 9804562b-ff0b-467b-ad54-ac4887446a77
+credentials-file: /Users/apple/.cloudflared/9804562b-ff0b-467b-ad54-ac4887446a77.json
+
+ingress:
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /mcp/claude
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /mcp/openai
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /mcp/chatgpt
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: customer.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: billing.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: analytics.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: admin.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: vue-commerce.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: angular-ops.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: design-system.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /apps
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /healthz
+    service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    service: http://127.0.0.1:5177
+  - hostname: customer.manojmukherjee.co.in
+    service: http://127.0.0.1:5173
+  - hostname: billing.manojmukherjee.co.in
+    service: http://127.0.0.1:5174
+  - hostname: analytics.manojmukherjee.co.in
+    service: http://127.0.0.1:5175
+  - hostname: admin.manojmukherjee.co.in
+    service: http://127.0.0.1:5176
+  - hostname: vue-commerce.manojmukherjee.co.in
+    service: http://127.0.0.1:5178
+  - hostname: angular-ops.manojmukherjee.co.in
+    service: http://127.0.0.1:5179
+  - hostname: design-system.manojmukherjee.co.in
+    service: http://127.0.0.1:5180
+  - service: http_status:404

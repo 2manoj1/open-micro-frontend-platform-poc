@@ -87,7 +87,8 @@ Apps can declare:
 - resources
 - prompts
 - event namespaces
-- permissions
+- platform scopes on the app manifest
+- MCP sandbox browser permissions as a dict/object, for example `{ clipboardWrite: {} }`
 - owner and version metadata
 
 This lets the same app act as a web micro frontend and an AI-native capability surface.

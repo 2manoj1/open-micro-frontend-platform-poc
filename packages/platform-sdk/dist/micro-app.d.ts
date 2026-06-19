@@ -26,6 +26,13 @@ export interface MicroAppMcpCapability {
     resources?: string[];
     prompts?: string[];
     eventNamespaces?: string[];
+    browserPermissions?: McpAppSandboxPermissions;
+}
+export interface McpAppSandboxPermissions {
+    camera?: Record<string, never>;
+    microphone?: Record<string, never>;
+    geolocation?: Record<string, never>;
+    clipboardWrite?: Record<string, never>;
 }
 export interface MicroAppCapabilities {
     aiNative?: boolean;

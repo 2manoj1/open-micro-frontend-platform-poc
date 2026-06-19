@@ -20,9 +20,11 @@ export default defineConfig(({ command }) => ({
     host: '127.0.0.1',
     port: 5174,
     cors: true,
+    allowedHosts: ['.manojmukherjee.co.in'],
   },
   preview: {
     port: 5174,
     cors: true,
+    allowedHosts: ['.manojmukherjee.co.in'],
   },
 }));

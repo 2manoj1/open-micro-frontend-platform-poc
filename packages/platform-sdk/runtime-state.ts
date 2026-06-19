@@ -91,8 +91,10 @@ export async function waitForMicroAppReady(container: HTMLElement, options: Micr
     let resolved = false;
     const cleanup = () => {
       observer.disconnect();
+      window.clearInterval(interval);
       window.clearTimeout(timeout);
       options.signal?.removeEventListener('abort', abort);
+      container.removeEventListener('micro-app:ready', ready);
     };
     const finish = () => {
       if (resolved) return;
@@ -107,9 +109,13 @@ export async function waitForMicroAppReady(container: HTMLElement, options: Micr
       reject(error);
     };
     const abort = () => fail(new Error('Micro app ready wait aborted'));
+    const ready = () => finish();
     const observer = new MutationObserver(() => {
       if (hasRenderableContent(container)) finish();
     });
+    const interval = window.setInterval(() => {
+      if (hasRenderableContent(container)) finish();
+    }, 100);
     const timeout = window.setTimeout(() => {
       if (hasRenderableContent(container)) {
         finish();
@@ -119,6 +125,7 @@ export async function waitForMicroAppReady(container: HTMLElement, options: Micr
     }, timeoutMs);
 
     options.signal?.addEventListener('abort', abort, { once: true });
+    container.addEventListener('micro-app:ready', ready, { once: true });
     observer.observe(container, {
       attributes: true,
       childList: true,
@@ -132,8 +139,37 @@ export async function waitForMicroAppReady(container: HTMLElement, options: Micr
 }
 
 function hasRenderableContent(container: HTMLElement): boolean {
-  if (container.children.length > 0) return true;
-  return Boolean(container.textContent?.trim());
+  if (hasMeaningfulText(container)) return true;
+
+  for (const element of Array.from(container.querySelectorAll<HTMLElement>('*'))) {
+    if (isElementVisible(element) && (hasMeaningfulText(element) || hasShadowRenderableContent(element))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasMeaningfulText(element: HTMLElement): boolean {
+  return Boolean(element.textContent?.replace(/\s+/g, ' ').trim());
+}
+
+function hasShadowRenderableContent(element: HTMLElement): boolean {
+  const shadowRoot = element.shadowRoot;
+  if (!shadowRoot) return false;
+
+  const shadowText = shadowRoot.textContent?.replace(/\s+/g, ' ').trim();
+  if (shadowText) return true;
+
+  return Array.from(shadowRoot.querySelectorAll<HTMLElement>('*')).some(isElementVisible);
+}
+
+function isElementVisible(element: HTMLElement): boolean {
+  const style = window.getComputedStyle(element);
+  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+
+  const rect = element.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
 }
 
 function nextPaint(): Promise<void> {

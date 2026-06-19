@@ -24,6 +24,7 @@ export async function GET(request: Request) {
           description: app.description,
           framework: app.framework,
           rendering: app.rendering,
+          app,
           manifestUrl: new URL(`/api/mcp/apps/${app.id}/manifest`, origin).toString(),
           resourceUrl,
           descriptor,

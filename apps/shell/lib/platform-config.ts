@@ -38,13 +38,19 @@ export interface LocalMicroAppDefinition {
   }
 }
 
+const localRuntimeMode =
+  process.env.NEXT_PUBLIC_MICRO_APP_RUNTIME_MODE ?? (process.env.NODE_ENV === 'production' ? 'bundled' : 'dev')
+const useBundledLocalApps = localRuntimeMode !== 'dev'
+
 export const shellPlatformConfig: ShellPlatformConfig = {
   shellName: process.env.NEXT_PUBLIC_PLATFORM_SHELL_NAME ?? 'Open Micro Platform',
   registryUrl: process.env.MICRO_APP_REGISTRY_URL,
   registryRevalidateSeconds: readNumber(process.env.MICRO_APP_REGISTRY_REVALIDATE_SECONDS, 60),
   errorLogEndpoint: process.env.NEXT_PUBLIC_MICRO_APP_ERROR_ENDPOINT ?? '/api/micro-app-errors',
   localAppsEnabled: process.env.MICRO_APP_LOCAL_APPS_ENABLED !== 'false',
-  devViteReactRefresh: process.env.NEXT_PUBLIC_MICRO_APP_VITE_REFRESH !== 'false',
+  devViteReactRefresh: process.env.NEXT_PUBLIC_MICRO_APP_VITE_REFRESH
+    ? process.env.NEXT_PUBLIC_MICRO_APP_VITE_REFRESH !== 'false'
+    : !useBundledLocalApps,
   localAppOrigins: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_ORIGIN ?? 'http://127.0.0.1:5173',
     billing: process.env.NEXT_PUBLIC_BILLING_APP_ORIGIN ?? 'http://127.0.0.1:5174',
@@ -56,24 +62,24 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ORIGIN ?? 'http://127.0.0.1:5180',
   },
   localAppEntryPaths: {
-    customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH ?? '/src/main.tsx',
-    billing: process.env.NEXT_PUBLIC_BILLING_APP_ENTRY_PATH ?? '/src/main.tsx',
-    analytics: process.env.NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH ?? '/src/main.tsx',
-    admin: process.env.NEXT_PUBLIC_ADMIN_APP_ENTRY_PATH ?? '/src/main.tsx',
-    'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH ?? '/src/main.tsx',
-    'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH ?? '/src/main.ts',
-    'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH ?? '/src/main.ts',
-    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ENTRY_PATH ?? '/src/main.ts',
+    customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH ?? localEntryPath('customer', 'tsx'),
+    billing: process.env.NEXT_PUBLIC_BILLING_APP_ENTRY_PATH ?? localEntryPath('billing', 'tsx'),
+    analytics: process.env.NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH ?? localEntryPath('analytics', 'tsx'),
+    admin: process.env.NEXT_PUBLIC_ADMIN_APP_ENTRY_PATH ?? localEntryPath('admin', 'tsx'),
+    'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH ?? localEntryPath('ai-assistant', 'tsx'),
+    'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH ?? localEntryPath('vue-commerce', 'ts'),
+    'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH ?? localEntryPath('angular-ops', 'ts'),
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ENTRY_PATH ?? localEntryPath('design-system', 'ts'),
   },
   localAppStylePaths: {
-    customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH ?? '',
-    billing: process.env.NEXT_PUBLIC_BILLING_APP_STYLE_PATH ?? '',
-    analytics: process.env.NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH ?? '',
-    admin: process.env.NEXT_PUBLIC_ADMIN_APP_STYLE_PATH ?? '',
-    'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH ?? '',
-    'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH ?? '',
-    'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH ?? '',
-    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH ?? '',
+    customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH ?? localStylePath('customer'),
+    billing: process.env.NEXT_PUBLIC_BILLING_APP_STYLE_PATH ?? localStylePath('billing'),
+    analytics: process.env.NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH ?? localStylePath('analytics'),
+    admin: process.env.NEXT_PUBLIC_ADMIN_APP_STYLE_PATH ?? localStylePath('admin'),
+    'ai-assistant': process.env.NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH ?? localStylePath('ai-assistant'),
+    'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH ?? localStylePath('vue-commerce'),
+    'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH ?? localStylePath('angular-ops'),
+    'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH ?? localStylePath('design-system'),
   },
   localAppManifestPaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_MANIFEST_PATH ?? '/manifest.json',
@@ -275,6 +281,14 @@ export const localMicroAppDefinitions: LocalMicroAppDefinition[] = [
     },
   },
 ]
+
+function localEntryPath(appId: string, extension: 'ts' | 'tsx'): string {
+  return useBundledLocalApps ? `/${appId}-app.js` : `/src/main.${extension}`
+}
+
+function localStylePath(appId: string): string {
+  return useBundledLocalApps ? `/${appId}-app.css` : ''
+}
 
 function readNumber(value: string | undefined, fallback: number): number {
   if (!value) return fallback

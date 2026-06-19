@@ -1,4 +1,5 @@
-import type { MicroAppConfig } from './micro-app.js';
+import type { McpAppSandboxPermissions, MicroAppConfig } from './micro-app.js';
+import type { App, AppOptions } from '@modelcontextprotocol/ext-apps';
 
 export type McpJsonValue = null | boolean | number | string | McpJsonValue[] | { [key: string]: McpJsonValue };
 
@@ -38,6 +39,26 @@ export interface McpAppBridge {
   dispose: () => void;
 }
 
+export type McpHostRuntimeStatus = 'standalone' | 'connecting' | 'connected' | 'unavailable' | 'error';
+
+export interface OfficialMcpAppRuntimeOptions {
+  name: string;
+  version: string;
+  capabilities?: Record<string, unknown>;
+  timeoutMs?: number;
+  appOptions?: AppOptions;
+}
+
+export interface OfficialMcpAppRuntime {
+  status: McpHostRuntimeStatus;
+  app?: App;
+  error?: Error;
+  requestHostCompletion: (prompt: string, systemPrompt?: string) => Promise<string>;
+  updateModelContext: (text: string) => Promise<void>;
+  callServerTool: (name: string, args?: Record<string, unknown>) => Promise<unknown>;
+  dispose: () => Promise<void>;
+}
+
 export interface McpAppHtmlOptions {
   shellOrigin: string;
   resourceOrigin?: string;
@@ -54,17 +75,17 @@ export interface McpAppResourceDescriptor {
   uri: string;
   name: string;
   description: string;
-  mimeType: 'text/html';
+  mimeType: 'text/html;profile=mcp-app';
   resourceUrl?: string;
   _meta: {
     ui: {
       appId: string;
       resourceUri: string;
       csp: {
-        connect_domains: string[];
-        resource_domains: string[];
+        connectDomains: string[];
+        resourceDomains: string[];
       };
-      permissions: string[];
+      permissions: McpAppSandboxPermissions;
       tools: string[];
       resources: string[];
       prompts: string[];
@@ -183,6 +204,61 @@ export function callMcpHostTool(name: string, args?: McpJsonValue): Promise<McpJ
   return getDefaultMcpAppBridge().callTool(name, args);
 }
 
+export async function connectOfficialMcpAppRuntime(
+  options: OfficialMcpAppRuntimeOptions
+): Promise<OfficialMcpAppRuntime> {
+  if (typeof window === 'undefined' || window.parent === window) {
+    return createDisconnectedOfficialRuntime('standalone');
+  }
+
+  try {
+    const { App } = await import('@modelcontextprotocol/ext-apps');
+    const app = new App(
+      { name: options.name, version: options.version },
+      options.capabilities ?? {},
+      {
+        autoResize: true,
+        strict: false,
+        ...options.appOptions,
+      }
+    );
+
+    await withTimeout(app.connect(), options.timeoutMs ?? 2_500, 'MCP Apps host connection timed out');
+
+    return {
+      status: 'connected',
+      app,
+      async requestHostCompletion(prompt, systemPrompt) {
+        const result = await app.createSamplingMessage({
+          messages: [
+            {
+              role: 'user',
+              content: { type: 'text', text: prompt },
+            },
+          ],
+          maxTokens: 320,
+          systemPrompt,
+        });
+
+        return readTextContent(result.content);
+      },
+      async updateModelContext(text) {
+        await app.updateModelContext({
+          content: [{ type: 'text', text }],
+        });
+      },
+      callServerTool(name, args = {}) {
+        return app.callServerTool({ name, arguments: args });
+      },
+      async dispose() {
+        await (app as unknown as { close?: () => Promise<void> }).close?.();
+      },
+    };
+  } catch (error) {
+    return createDisconnectedOfficialRuntime('error', error);
+  }
+}
+
 export function createMcpAppResourceDescriptor(
   app: MicroAppConfig,
   options: McpAppResourceDescriptorOptions
@@ -195,23 +271,75 @@ export function createMcpAppResourceDescriptor(
     uri: resourceUri,
     name: app.name,
     description: app.description,
-    mimeType: 'text/html',
+    mimeType: 'text/html;profile=mcp-app',
     resourceUrl: options.resourceUrl,
     _meta: {
       ui: {
         appId: app.id,
         resourceUri,
         csp: {
-          connect_domains: origins,
-          resource_domains: origins,
+          connectDomains: origins,
+          resourceDomains: origins,
         },
-        permissions: app.permissions,
+        permissions: mcp?.browserPermissions ?? {},
         tools: mcp?.tools ?? [],
         resources: mcp?.resources ?? [],
         prompts: mcp?.prompts ?? [],
       },
     },
   };
+}
+
+function createDisconnectedOfficialRuntime(status: McpHostRuntimeStatus, error?: unknown): OfficialMcpAppRuntime {
+  return {
+    status,
+    error: error instanceof Error ? error : error ? new Error(String(error)) : undefined,
+    requestHostCompletion() {
+      return Promise.reject(new Error('No MCP Apps host model runtime is connected'));
+    },
+    updateModelContext() {
+      return Promise.resolve();
+    },
+    callServerTool() {
+      return Promise.reject(new Error('No MCP Apps host tool bridge is connected'));
+    },
+    dispose() {
+      return Promise.resolve();
+    },
+  };
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
+function readTextContent(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (!content) return '';
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => readTextContent(part))
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  if (typeof content === 'object' && 'text' in content && typeof (content as { text?: unknown }).text === 'string') {
+    return (content as { text: string }).text;
+  }
+
+  return '';
 }
 
 export function createMcpAppHtml(app: MicroAppConfig, options: McpAppHtmlOptions): string {

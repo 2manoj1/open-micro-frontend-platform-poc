@@ -13,6 +13,16 @@ export function defineMicroAppElement(tagName, lifecycle, options = {}) {
             try {
                 const mounted = await lifecycle.mount(this, context);
                 this.cleanup = typeof mounted === 'function' ? mounted : undefined;
+                await nextPaint();
+                this.dispatchEvent(new CustomEvent('micro-app:ready', {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        appId: context.app.id,
+                        tagName,
+                        timestamp: Date.now(),
+                    },
+                }));
                 eventBus.emit(PlatformEvents.APP_LOADED, context.app.id, { tagName });
             }
             catch (error) {
@@ -73,6 +83,11 @@ export function defineMicroAppElement(tagName, lifecycle, options = {}) {
     customElements.define(tagName, PlatformMicroAppElement);
     return PlatformMicroAppElement;
 }
+function nextPaint() {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+}
 export function emitMicroAppEvent(eventType, source, payload) {
     eventBus.emit(eventType, source, payload);
 }
@@ -86,7 +101,7 @@ export function emitMcpAppEvent(eventType, source, payload) {
         timestamp: Date.now(),
     });
 }
-export { callMcpHostTool, createMcpAppBridge, getDefaultMcpAppBridge, initializeMcpAppBridge, notifyMcpHost, requestMcpHost, } from './mcp-app.js';
+export { callMcpHostTool, createMcpAppBridge, connectOfficialMcpAppRuntime, getDefaultMcpAppBridge, initializeMcpAppBridge, notifyMcpHost, requestMcpHost, } from './mcp-app.js';
 export { isWebMcpAvailable, registerWebMcpTool } from './web-mcp.js';
 function toMcpJsonValue(value) {
     if (value === undefined)
