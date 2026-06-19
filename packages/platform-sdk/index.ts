@@ -5,9 +5,12 @@
 
 export * from './event-bus.js';
 export * from './html-fragment.js';
+export * from './mcp-app.js';
 export * from './micro-app.js';
 export * from './observability.js';
 export * from './registry.js';
+export * from './runtime-state.js';
+export * from './web-mcp.js';
 
 import type { MicroAppConfig } from './micro-app.js';
 

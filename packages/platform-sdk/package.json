@@ -45,6 +45,10 @@
       "types": "./dist/html-fragment.d.ts",
       "default": "./dist/html-fragment.js"
     },
+    "./mcp-app": {
+      "types": "./dist/mcp-app.d.ts",
+      "default": "./dist/mcp-app.js"
+    },
     "./micro-app": {
       "types": "./dist/micro-app.d.ts",
       "default": "./dist/micro-app.js"
@@ -61,9 +65,17 @@
       "types": "./dist/registry.d.ts",
       "default": "./dist/registry.js"
     },
+    "./runtime-state": {
+      "types": "./dist/runtime-state.d.ts",
+      "default": "./dist/runtime-state.js"
+    },
     "./shell": {
       "types": "./dist/shell.d.ts",
       "default": "./dist/shell.js"
+    },
+    "./web-mcp": {
+      "types": "./dist/web-mcp.d.ts",
+      "default": "./dist/web-mcp.js"
     }
   },
   "types": "./dist/index.d.ts",

@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { AlertCircle, FileText } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText, Inbox } from 'lucide-react';
 import { fetchMicroAppHtmlFragment, normalizeError, type MicroAppConfig } from '@micro-frontend/platform-sdk';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -40,6 +40,27 @@ export async function HtmlFragmentMicroApp({ appConfig }: { appConfig: MicroAppC
     );
   }
 
+  if (!fragment.html.trim()) {
+    return (
+      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-200">
+            <Inbox className="h-5 w-5" aria-hidden="true" />
+            Empty HTML Fragment
+          </CardTitle>
+          <CardDescription className="text-amber-800 dark:text-amber-300">
+            {appConfig.name} responded successfully, but the fragment did not contain renderable HTML.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="rounded-md border border-amber-200 bg-white p-4 font-mono text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+          <div>appId={appConfig.id}</div>
+          <div>runtime={appConfig.runtime.type}</div>
+          <div className="break-all">source={fragment.sourceUrl}</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -52,6 +73,10 @@ export async function HtmlFragmentMicroApp({ appConfig }: { appConfig: MicroAppC
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+          Fragment ready
+        </div>
         <div
           className="min-h-96 overflow-hidden rounded-md border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
           dangerouslySetInnerHTML={{ __html: fragment.html }}

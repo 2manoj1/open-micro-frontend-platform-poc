@@ -4,12 +4,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, Boxes, RefreshCw, Terminal } from 'lucide-react';
 import {
   createFetchLogger,
+  createMicroAppRuntimeState,
+  isMicroAppRuntimeBusy,
   mountMicroApp,
   normalizeError,
   reportMicroAppError,
   type MicroAppConfig,
+  type MicroAppRuntimeState,
   type MountedMicroApp,
   type PlatformLogEntry,
+  waitForMicroAppReady,
 } from '@micro-frontend/platform-sdk';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +28,9 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef<MountedMicroApp | null>(null);
   const [error, setError] = useState<RuntimeErrorState | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [runtimeState, setRuntimeState] = useState<MicroAppRuntimeState>(() =>
+    createMicroAppRuntimeState(appConfig, 'idle')
+  );
   const [reloadKey, setReloadKey] = useState(0);
   const logger = useMemo(() => {
     const endpoint = appConfig.capabilities?.observability?.errorEndpoint;
@@ -47,6 +53,7 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
       source,
       logEntry: entry,
     });
+    setRuntimeState(createMicroAppRuntimeState(appConfig, 'error', undefined, err));
     return entry;
   }, [appConfig, logger]);
 
@@ -58,9 +65,10 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
 
     async function load() {
       try {
-        setLoading(true);
+        setRuntimeState(createMicroAppRuntimeState(appConfig, 'resolving'));
         setError(null);
 
+        setRuntimeState(createMicroAppRuntimeState(appConfig, 'loading-assets'));
         const mounted = await mountMicroApp(appConfig, container, {
           shellOrigin: window.location.origin,
         });
@@ -71,13 +79,16 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
         }
 
         mountedRef.current = mounted;
-        setLoading(false);
+        setRuntimeState(createMicroAppRuntimeState(appConfig, 'mounting'));
+        await waitForMicroAppReady(container);
+        if (!cancelled) {
+          setRuntimeState(createMicroAppRuntimeState(appConfig, 'ready'));
+        }
       } catch (err) {
         captureError(err, 'micro-app-load', {
           entryUrl: appConfig.entryUrl,
           runtime: appConfig.runtime.type,
         });
-        setLoading(false);
       }
     }
 
@@ -87,13 +98,13 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
         line: event.lineno,
         column: event.colno,
       });
-      setLoading(false);
+      setRuntimeState(createMicroAppRuntimeState(appConfig, 'error', undefined, event.error ?? event.message));
       container.replaceChildren();
     }
 
     function handleUnhandledRejection(event: PromiseRejectionEvent) {
       captureError(event.reason, 'micro-app-unhandled-rejection');
-      setLoading(false);
+      setRuntimeState(createMicroAppRuntimeState(appConfig, 'error', undefined, event.reason));
       container.replaceChildren();
     }
 
@@ -112,6 +123,8 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
     };
   }, [appConfig, captureError, reloadKey]);
 
+  const loading = isMicroAppRuntimeBusy(runtimeState);
+
   return (
     <div className="space-y-6">
       {error && (
@@ -125,12 +138,18 @@ export function MicroAppIsland({ appConfig }: { appConfig: MicroAppConfig }) {
             Runtime Surface
           </CardTitle>
           <CardDescription>
-            {loading ? 'Loading micro app island...' : `${appConfig.framework} micro app mounted successfully`}
+            {runtimeState.detail}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative">
           {loading && (
-            <MicroAppIslandFallback label={`Loading ${appConfig.name}...`} />
+            <MicroAppIslandFallback label={runtimeState.label} detail={runtimeState.detail} />
+          )}
+          {runtimeState.phase === 'ready' && !error && (
+            <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              {appConfig.framework} runtime ready
+            </div>
           )}
           <div
             ref={containerRef}
@@ -192,14 +211,21 @@ function MicroAppErrorFallback({
   );
 }
 
-export function MicroAppIslandFallback({ label = 'Loading micro app...' }: { label?: string }) {
+export function MicroAppIslandFallback({
+  label = 'Loading micro app...',
+  detail,
+}: {
+  label?: string;
+  detail?: string;
+}) {
   return (
     <div className="absolute inset-4 z-10 flex items-center justify-center rounded-md border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
-      <div className="text-center">
+      <div className="max-w-md text-center">
         <div className="mb-3 inline-block animate-spin">
           <div className="h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent" />
         </div>
-        <p className="text-slate-600 dark:text-slate-400">{label}</p>
+        <p className="font-medium text-slate-700 dark:text-slate-200">{label}</p>
+        {detail && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{detail}</p>}
       </div>
     </div>
   );

@@ -56,6 +56,8 @@ The shell discovers apps through a registry, then chooses the right renderer by 
 - `html-fragment`: trusted static, SSR, SSG, or ISR HTML fetched from a Server Component path.
 - `iframe`: isolated hosted experience.
 
+Each renderer has explicit loading, ready, empty, and error states. Client islands use SDK runtime states and a first-render readiness check. Server-rendered HTML fragments are wrapped with Suspense and show empty/error fallbacks. Iframe and MCP Apps resources include their own loading and failure surfaces. The goal is simple: a remote can fail, but the shell should not go white.
+
 The shell can pass stable platform context through mount props or attributes:
 
 - auth/session
@@ -86,12 +88,24 @@ SDK entrypoints:
 - `@micro-frontend/platform-sdk/shell`: shell runtime helpers for registry resolution, HTML fragment fetches, observability, and client island mounting contracts.
 - `@micro-frontend/platform-sdk/next`: server-safe helpers and types for a Next.js shell.
 - `@micro-frontend/platform-sdk/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
+- `@micro-frontend/platform-sdk/runtime-state`: shared loading, ready, empty, error, and readiness helpers for shell renderers.
 - `@micro-frontend/platform-sdk/event-bus`: async browser event bus and MCP-oriented event names.
+- `@micro-frontend/platform-sdk/mcp-app`: MCP Apps bridge helpers, resource descriptors, and standalone HTML resource generation.
 - `@micro-frontend/platform-sdk/observability`: normalized error reporting and configurable loggers.
+- `@micro-frontend/platform-sdk/web-mcp`: browser-agent WebMCP tool registration helpers.
 
 ## Shared Design System Without Module Federation
 
 This POC uses a shell-owned singleton design contract instead of Webpack Module Federation singletons. The shell imports `@micro-frontend/design-system/tokens.css` once at the root, and every micro app consumes the same `--omf-*` CSS variables at runtime. Framework apps can still keep their own rendering stack, but design tokens, theme, density, and brand decisions come from the platform contract.
+
+The design system package is importable:
+
+```ts
+import '@micro-frontend/design-system/tokens.css'
+import { designSystemComponents, getDesignSystemComponentTag } from '@micro-frontend/design-system'
+```
+
+The runtime design-system remote also exposes shared Web Components such as `omf-platform-header` and `omf-platform-footer`, so shell teams can either import typed contracts or load shared UI at runtime.
 
 For shared JavaScript packages, treat them as contracts:
 
@@ -140,6 +154,24 @@ The AI Assistant demo emits:
 - `mcp:tool-call-completed`
 
 The dashboard shows each app's declared tools, resources, prompts, and event namespaces.
+
+The shell also exposes MCP Apps-compatible resource endpoints:
+
+- `GET /api/mcp/apps`: lists all MCP-capable apps and their descriptors.
+- `GET /api/mcp/apps/{appId}/manifest`: returns one app descriptor with `_meta.ui.resourceUri`, CSP domains, tools, resources, prompts, and permissions.
+- `GET /api/mcp/apps/{appId}/resource`: returns standalone HTML that can be sandboxed by an AI host iframe and mounted without the normal shell page.
+
+The HTML resource imports the app bundle and styles at runtime, mounts the Web Component or HTML fragment, and forwards platform events to the host over JSON-RPC-shaped `postMessage` notifications. Micro apps can also call host tools through the SDK bridge when an MCP Apps host is present, while continuing to work normally in the browser shell or PWA path.
+
+## AI Native Runtime Paths
+
+The AI Assistant app now demonstrates three AI-native paths in one portable micro app:
+
+- Chrome built-in AI: checks `LanguageModel.availability()` and uses local Prompt API sessions when available.
+- WebMCP: registers read-only browser-agent tools with `document.modelContext` when the browser exposes WebMCP.
+- MCP Apps: renders as standalone HTML at `/api/mcp/apps/ai-assistant/resource`.
+
+See [AI_USE_CASES.md](AI_USE_CASES.md) for the full use-case guide.
 
 ## Configuration
 
@@ -205,9 +237,10 @@ Verified locally:
 - Shell dashboard renders.
 - Customer, Billing, Analytics, Admin, AI Assistant, Vue Commerce, Angular Operations, and Design System routes mount end to end.
 - Knowledge Center static HTML fragment renders through the RSC path.
+- Web Component, HTML fragment, iframe, and MCP Apps resource renderers expose loading, ready, empty, or error states.
 - Runtime error fallback and shell error logging contracts are wired.
 - MCPApps tools, resources, prompts, and event namespaces are visible in the registry UI.
-- AI Assistant emits MCP tool-call events through the SDK event bus.
+- AI Assistant emits MCP tool-call events through the SDK event bus, exposes WebMCP tools when supported, can use Chrome built-in AI when available, and can run as `/api/mcp/apps/ai-assistant/resource`.
 - Production build passes for the shell and all micro apps.
 
 ## Project Structure

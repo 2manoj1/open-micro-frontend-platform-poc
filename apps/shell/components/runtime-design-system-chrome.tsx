@@ -3,6 +3,7 @@
 import { createElement, useEffect, useId, useState, type ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
 import type { MicroAppConfig } from '@micro-frontend/platform-sdk';
+import { getDesignSystemComponentTag } from '@micro-frontend/design-system';
 
 interface RuntimeDesignSystemChromeProps {
   designSystemApp: MicroAppConfig;
@@ -63,18 +64,19 @@ export function RuntimeDesignSystemChrome({
         </div>
       ) : ready ? (
         <>
-          {createRuntimeElement('omf-platform-header', {
+          {createRuntimeElement(getDesignSystemComponentTag('header'), {
             'shell-name': shellName,
             active,
           })}
           {children}
-          {createRuntimeElement('omf-platform-footer', {
+          {createRuntimeElement(getDesignSystemComponentTag('footer'), {
             'shell-name': shellName,
           })}
         </>
       ) : (
         <div className="rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-          Loading runtime design system...
+          <div className="font-semibold text-slate-900 dark:text-white">Loading runtime design system</div>
+          <p className="mt-1">Fetching shared header, footer, tokens, and component contracts from the design-system remote.</p>
         </div>
       )}
     </section>

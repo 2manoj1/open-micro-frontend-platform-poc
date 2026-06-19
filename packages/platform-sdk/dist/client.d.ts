@@ -12,4 +12,6 @@ export interface DefineMicroAppElementOptions {
 export declare function defineMicroAppElement(tagName: string, lifecycle: MicroAppElementLifecycle, options?: DefineMicroAppElementOptions): CustomElementConstructor;
 export declare function emitMicroAppEvent(eventType: string, source: string, payload: unknown): void;
 export declare function emitMcpAppEvent(eventType: keyof Pick<typeof PlatformEvents, 'MCP_APP_REGISTERED' | 'MCP_TOOL_CALL_REQUESTED' | 'MCP_TOOL_CALL_COMPLETED' | 'MCP_TOOL_CALL_FAILED' | 'MCP_RESOURCE_REQUESTED' | 'MCP_PROMPT_REQUESTED'>, source: string, payload: unknown): void;
+export { callMcpHostTool, createMcpAppBridge, getDefaultMcpAppBridge, initializeMcpAppBridge, notifyMcpHost, requestMcpHost, } from './mcp-app.js';
+export { isWebMcpAvailable, registerWebMcpTool } from './web-mcp.js';
 //# sourceMappingURL=client.d.ts.map

@@ -1,4 +1,5 @@
 import { PlatformEvents, eventBus } from './event-bus.js';
+import { notifyMcpHost } from './mcp-app.js';
 import { reportMicroAppError } from './observability.js';
 export function defineMicroAppElement(tagName, lifecycle, options = {}) {
     const existingElement = customElements.get(tagName);
@@ -76,5 +77,19 @@ export function emitMicroAppEvent(eventType, source, payload) {
     eventBus.emit(eventType, source, payload);
 }
 export function emitMcpAppEvent(eventType, source, payload) {
-    eventBus.emit(PlatformEvents[eventType], source, payload);
+    const type = PlatformEvents[eventType];
+    eventBus.emit(type, source, payload);
+    notifyMcpHost('ui/notification', {
+        type,
+        source,
+        payload: toMcpJsonValue(payload),
+        timestamp: Date.now(),
+    });
+}
+export { callMcpHostTool, createMcpAppBridge, getDefaultMcpAppBridge, initializeMcpAppBridge, notifyMcpHost, requestMcpHost, } from './mcp-app.js';
+export { isWebMcpAvailable, registerWebMcpTool } from './web-mcp.js';
+function toMcpJsonValue(value) {
+    if (value === undefined)
+        return null;
+    return JSON.parse(JSON.stringify(value));
 }
