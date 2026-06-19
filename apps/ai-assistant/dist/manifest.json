@@ -1,0 +1,9 @@
+{
+  "id": "ai-assistant",
+  "name": "AI Assistant App",
+  "version": "0.8.0",
+  "componentTag": "micro-ai-assistant-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["ai:invoke", "knowledge:read"],
+  "features": ["summaries", "triage", "workflow-guidance"]
+}

@@ -1,0 +1,78 @@
+{
+  "name": "@micro-frontend/platform-sdk",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Framework-neutral micro frontend runtime SDK for shell and self-deployable micro apps",
+  "keywords": [
+    "micro-frontend",
+    "micro-frontends",
+    "web-components",
+    "nextjs",
+    "rsc",
+    "mcp",
+    "mcpapps",
+    "event-bus",
+    "module-federation-alternative",
+    "frontend-platform"
+  ],
+  "author": "",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./event-bus": {
+      "types": "./dist/event-bus.d.ts",
+      "default": "./dist/event-bus.js"
+    },
+    "./html-fragment": {
+      "types": "./dist/html-fragment.d.ts",
+      "default": "./dist/html-fragment.js"
+    },
+    "./micro-app": {
+      "types": "./dist/micro-app.d.ts",
+      "default": "./dist/micro-app.js"
+    },
+    "./observability": {
+      "types": "./dist/observability.d.ts",
+      "default": "./dist/observability.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "default": "./dist/next.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "default": "./dist/registry.js"
+    },
+    "./shell": {
+      "types": "./dist/shell.d.ts",
+      "default": "./dist/shell.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3"
+  }
+}

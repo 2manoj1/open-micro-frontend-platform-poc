@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @micro-frontend/platform-sdk build && pnpm --filter @micro-frontend/shell build",
+  "outputDirectory": "apps/shell/.next"
+}

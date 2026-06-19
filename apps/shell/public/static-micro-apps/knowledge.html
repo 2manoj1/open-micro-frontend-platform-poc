@@ -1,0 +1,25 @@
+<section style="font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #172033;">
+  <header style="background: linear-gradient(135deg, #334155 0%, #0f766e 100%); border-radius: 8px 8px 0 0; color: white; padding: 24px;">
+    <span style="display: block; font-size: 12px; font-weight: 800; letter-spacing: .08em; margin-bottom: 10px; text-transform: uppercase;">Static SSG Remote</span>
+    <h1 style="font-size: 30px; margin: 0 0 8px;">Knowledge Center</h1>
+    <p style="margin: 0; opacity: .9;">A static site fragment fetched by the Next.js shell and rendered through an RSC-friendly path.</p>
+  </header>
+  <div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); padding: 24px;">
+    <article style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+      <strong style="display: block; font-size: 28px;">SSG</strong>
+      <span style="color: #475569; display: block; margin-top: 4px;">Prebuilt static HTML</span>
+    </article>
+    <article style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+      <strong style="display: block; font-size: 28px;">RSC</strong>
+      <span style="color: #475569; display: block; margin-top: 4px;">Fetched in the shell route</span>
+    </article>
+    <article style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+      <strong style="display: block; font-size: 28px;">0 KB</strong>
+      <span style="color: #475569; display: block; margin-top: 4px;">No client runtime required</span>
+    </article>
+  </div>
+  <div style="padding: 0 24px 24px;">
+    <h2 style="font-size: 20px; margin: 0 0 12px;">Supported Use Case</h2>
+    <p style="line-height: 1.6; margin: 0;">Docs, CMS pages, marketing fragments, or server-rendered HTML can be registered as an HTML fragment micro app. The shell decides cache policy with force-cache, no-store, or ISR revalidation.</p>
+  </div>
+</section>

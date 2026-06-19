@@ -1,0 +1,9 @@
+{
+  "id": "billing",
+  "name": "Billing App",
+  "version": "1.0.0",
+  "componentTag": "micro-billing-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["billing:read", "payments:write"],
+  "features": ["invoices", "payments", "revenue-summary"]
+}

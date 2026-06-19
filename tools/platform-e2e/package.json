@@ -1,0 +1,19 @@
+{
+  "name": "@micro-frontend/platform-e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "screenshots": "playwright test tests/screenshots.spec.ts",
+    "ui": "playwright test --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.2",
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "tsx": "^4.22.4"
+  }
+}

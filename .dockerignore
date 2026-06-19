@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+.next
+**/.next
+dist
+**/dist
+reports
+screenshots
+test-results
+playwright-report
+*.tgz
+.git
+.DS_Store
+*.log

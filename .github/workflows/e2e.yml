@@ -1,0 +1,56 @@
+name: E2E
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    name: Playwright screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @micro-frontend/platform-e2e exec playwright install --with-deps chromium
+
+      - name: Start platform
+        run: |
+          pnpm dev:all:ci > /tmp/micro-frontend-platform.log 2>&1 &
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:3001/dashboard > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/micro-frontend-platform.log
+          exit 1
+
+      - name: Run screenshots
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3001
+        run: pnpm e2e:screenshots
+
+      - name: Upload screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-e2e-artifacts
+          path: |
+            tools/platform-e2e/screenshots
+            tools/platform-e2e/reports
+            /tmp/micro-frontend-platform.log

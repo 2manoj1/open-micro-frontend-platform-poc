@@ -1,0 +1,9 @@
+{
+  "id": "analytics",
+  "name": "Analytics App",
+  "version": "1.0.0",
+  "componentTag": "micro-analytics-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["analytics:read"],
+  "features": ["metrics", "charts", "event-stream"]
+}

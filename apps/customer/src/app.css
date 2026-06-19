@@ -1,0 +1,142 @@
+.micro-app-container {
+  --app-accent: #059669;
+  --app-accent-dark: #065f46;
+  --app-accent-soft: #ecfdf5;
+  --app-border: #e2e8f0;
+  --app-muted: #64748b;
+  --app-panel: #f8fafc;
+  color: #172033;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.micro-app-header {
+  background: #0f172a;
+  border-bottom: 4px solid var(--app-accent);
+  color: #fff;
+  padding: 24px;
+}
+
+.micro-app-header span {
+  color: #a7f3d0;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.micro-app-header h1 {
+  font-size: clamp(24px, 3vw, 30px);
+  letter-spacing: 0;
+  margin: 0 0 8px;
+}
+
+.micro-app-header p {
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px 24px 0;
+}
+
+.chip {
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  color: #334155;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.chip.active {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: #fff;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  padding: 24px;
+}
+
+.stat-card,
+.row-card {
+  background: var(--app-panel);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.stat-label,
+.row-card span {
+  color: var(--app-muted);
+  display: block;
+  font-size: 14px;
+}
+
+.stat-value {
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+.list-section {
+  display: grid;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+
+.row-card {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.row-card strong {
+  color: #0f172a;
+}
+
+.health {
+  min-width: 160px;
+}
+
+.health span {
+  color: var(--app-accent-dark);
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-align: right;
+}
+
+.health div {
+  background: #d1fae5;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.health i {
+  background: var(--app-accent);
+  display: block;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .row-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .health {
+    width: 100%;
+  }
+}

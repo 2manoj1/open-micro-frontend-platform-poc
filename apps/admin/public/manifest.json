@@ -1,0 +1,9 @@
+{
+  "id": "admin",
+  "name": "Admin App",
+  "version": "0.9.0",
+  "componentTag": "micro-admin-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["admin:read", "flags:write"],
+  "features": ["tenant-control", "feature-flags", "audit-log"]
+}

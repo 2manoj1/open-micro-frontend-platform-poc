@@ -1,0 +1,9 @@
+{
+  "id": "vue-commerce",
+  "name": "Vue Commerce App",
+  "version": "1.0.0",
+  "componentTag": "micro-vue-commerce-app",
+  "entry": "/src/main.ts",
+  "permissions": ["commerce:read", "orders:read"],
+  "features": ["commerce-segments", "orders", "vue-runtime"]
+}

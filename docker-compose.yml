@@ -1,0 +1,101 @@
+name: micro-frontend-platform
+
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile
+
+services:
+  customer:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/customer-app'
+    environment:
+      APP_FILTER: '@micro-frontend/customer-app'
+      APP_KIND: remote
+      PORT: 5173
+    ports:
+      - '5173:5173'
+
+  billing:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/billing-app'
+    environment:
+      APP_FILTER: '@micro-frontend/billing-app'
+      APP_KIND: remote
+      PORT: 5174
+    ports:
+      - '5174:5174'
+
+  analytics:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/analytics-app'
+    environment:
+      APP_FILTER: '@micro-frontend/analytics-app'
+      APP_KIND: remote
+      PORT: 5175
+    ports:
+      - '5175:5175'
+
+  admin:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/admin-app'
+    environment:
+      APP_FILTER: '@micro-frontend/admin-app'
+      APP_KIND: remote
+      PORT: 5176
+    ports:
+      - '5176:5176'
+
+  ai-assistant:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/ai-assistant-app'
+    environment:
+      APP_FILTER: '@micro-frontend/ai-assistant-app'
+      APP_KIND: remote
+      PORT: 5177
+    ports:
+      - '5177:5177'
+
+  shell:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/shell'
+    depends_on:
+      - customer
+      - billing
+      - analytics
+      - admin
+      - ai-assistant
+    environment:
+      APP_FILTER: '@micro-frontend/shell'
+      APP_KIND: shell
+      PORT: 3001
+      NEXT_PUBLIC_PLATFORM_SHELL_NAME: Open Micro Platform
+      NEXT_PUBLIC_MICRO_APP_VITE_REFRESH: 'false'
+      NEXT_PUBLIC_CUSTOMER_APP_ORIGIN: http://localhost:5173
+      NEXT_PUBLIC_BILLING_APP_ORIGIN: http://localhost:5174
+      NEXT_PUBLIC_ANALYTICS_APP_ORIGIN: http://localhost:5175
+      NEXT_PUBLIC_ADMIN_APP_ORIGIN: http://localhost:5176
+      NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN: http://localhost:5177
+      NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH: /customer-app.js
+      NEXT_PUBLIC_BILLING_APP_ENTRY_PATH: /billing-app.js
+      NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH: /analytics-app.js
+      NEXT_PUBLIC_ADMIN_APP_ENTRY_PATH: /admin-app.js
+      NEXT_PUBLIC_AI_ASSISTANT_APP_ENTRY_PATH: /ai-assistant-app.js
+      NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH: /customer-app.css
+      NEXT_PUBLIC_BILLING_APP_STYLE_PATH: /billing-app.css
+      NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH: /analytics-app.css
+      NEXT_PUBLIC_ADMIN_APP_STYLE_PATH: /admin-app.css
+      NEXT_PUBLIC_AI_ASSISTANT_APP_STYLE_PATH: /ai-assistant-app.css
+    ports:
+      - '3001:3001'

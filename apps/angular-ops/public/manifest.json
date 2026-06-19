@@ -1,0 +1,9 @@
+{
+  "id": "angular-ops",
+  "name": "Angular Operations App",
+  "version": "1.0.0",
+  "componentTag": "micro-angular-ops-app",
+  "entry": "/src/main.ts",
+  "permissions": ["ops:read", "workflows:write"],
+  "features": ["operations", "workflows", "angular-runtime"]
+}

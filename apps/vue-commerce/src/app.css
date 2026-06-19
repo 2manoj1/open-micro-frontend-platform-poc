@@ -1,0 +1,128 @@
+.micro-app-container {
+  --app-accent: #16a34a;
+  --app-border: #e2e8f0;
+  --app-muted: #64748b;
+  --app-panel: #f8fafc;
+  color: #172033;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.micro-app-header {
+  background: #0f172a;
+  border-bottom: 4px solid var(--app-accent);
+  color: white;
+  padding: 24px;
+}
+
+.micro-app-header span {
+  color: #bbf7d0;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.micro-app-header h1 {
+  font-size: clamp(24px, 3vw, 30px);
+  margin: 0 0 8px;
+}
+
+.micro-app-header p {
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.commerce-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 24px 24px 0;
+}
+
+.commerce-toolbar button,
+.commerce-panel button {
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.commerce-toolbar button {
+  background: white;
+  color: #334155;
+  padding: 10px 14px;
+}
+
+.commerce-toolbar button.active,
+.commerce-panel button {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: white;
+}
+
+.commerce-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  padding: 24px;
+}
+
+.commerce-grid article,
+.commerce-panel {
+  background: var(--app-panel);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.commerce-grid span,
+.commerce-panel span {
+  color: var(--app-muted);
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.commerce-grid strong {
+  color: #0f172a;
+  display: block;
+  font-size: 28px;
+}
+
+.commerce-panel {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin: 0 24px 24px;
+}
+
+.commerce-panel strong {
+  color: #0f172a;
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+}
+
+.commerce-panel p {
+  color: var(--app-muted);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.commerce-panel button {
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .commerce-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

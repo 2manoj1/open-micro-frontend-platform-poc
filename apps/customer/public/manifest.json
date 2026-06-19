@@ -1,0 +1,9 @@
+{
+  "id": "customer",
+  "name": "Customer App",
+  "version": "1.0.0",
+  "componentTag": "micro-customer-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["customers:read", "customers:write"],
+  "features": ["customer-health", "segments", "activity-timeline"]
+}
