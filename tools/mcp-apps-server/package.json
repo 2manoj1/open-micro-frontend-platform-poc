@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Remote MCP Apps server for Open Micro Platform micro apps",
   "scripts": {
+    "build": "node --check src/server.mjs",
     "start": "node src/server.mjs",
     "dev": "node --watch src/server.mjs",
     "lint": "node --check src/server.mjs"

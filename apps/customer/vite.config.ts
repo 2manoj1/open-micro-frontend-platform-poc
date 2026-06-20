@@ -13,6 +13,7 @@ export default defineConfig(({ command }) => ({
       formats: ['es'],
       fileName: () => 'customer-app.js',
     },
+    codeSplitting: false,
     target: 'esnext',
     minify: 'esbuild',
   },

@@ -7,14 +7,15 @@ x-app-build: &app-build
 x-shell-public-env: &shell-public-env
   NEXT_PUBLIC_PLATFORM_SHELL_NAME: Open Micro Platform
   NEXT_PUBLIC_MICRO_APP_VITE_REFRESH: 'false'
-  NEXT_PUBLIC_CUSTOMER_APP_ORIGIN: http://localhost:5173
-  NEXT_PUBLIC_BILLING_APP_ORIGIN: http://localhost:5174
-  NEXT_PUBLIC_ANALYTICS_APP_ORIGIN: http://localhost:5175
-  NEXT_PUBLIC_ADMIN_APP_ORIGIN: http://localhost:5176
-  NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN: http://localhost:5177
-  NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN: http://localhost:5178
-  NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN: http://localhost:5179
-  NEXT_PUBLIC_DESIGN_SYSTEM_APP_ORIGIN: http://localhost:5180
+  NEXT_PUBLIC_CUSTOMER_APP_ORIGIN: https://customer.manojmukherjee.co.in
+  NEXT_PUBLIC_BILLING_APP_ORIGIN: https://billing.manojmukherjee.co.in
+  NEXT_PUBLIC_ANALYTICS_APP_ORIGIN: https://analytics.manojmukherjee.co.in
+  NEXT_PUBLIC_ADMIN_APP_ORIGIN: https://admin.manojmukherjee.co.in
+  NEXT_PUBLIC_AI_ASSISTANT_APP_ORIGIN: https://ai-assistant.manojmukherjee.co.in
+  NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN: https://vue-commerce.manojmukherjee.co.in
+  NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN: https://angular-ops.manojmukherjee.co.in
+  NEXT_PUBLIC_DESIGN_SYSTEM_APP_ORIGIN: https://design-system.manojmukherjee.co.in
+  NEXT_PUBLIC_MCP_DEMO_APP_ORIGIN: https://mcp-demo.manojmukherjee.co.in
   NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH: /customer-app.js
   NEXT_PUBLIC_BILLING_APP_ENTRY_PATH: /billing-app.js
   NEXT_PUBLIC_ANALYTICS_APP_ENTRY_PATH: /analytics-app.js
@@ -23,6 +24,7 @@ x-shell-public-env: &shell-public-env
   NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH: /vue-commerce-app.js
   NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH: /angular-ops-app.js
   NEXT_PUBLIC_DESIGN_SYSTEM_APP_ENTRY_PATH: /design-system-app.js
+  NEXT_PUBLIC_MCP_DEMO_APP_ENTRY_PATH: /mcp-demo-app.js
   NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH: /customer-app.css
   NEXT_PUBLIC_BILLING_APP_STYLE_PATH: /billing-app.css
   NEXT_PUBLIC_ANALYTICS_APP_STYLE_PATH: /analytics-app.css
@@ -31,6 +33,7 @@ x-shell-public-env: &shell-public-env
   NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH: /vue-commerce-app.css
   NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH: /angular-ops-app.css
   NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH: /design-system-app.css
+  NEXT_PUBLIC_MCP_DEMO_APP_STYLE_PATH: /mcp-demo-app.css
 
 services:
   customer:
@@ -129,6 +132,18 @@ services:
     ports:
       - '5180:5180'
 
+  mcp-demo:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/mcp-demo-app'
+    environment:
+      APP_FILTER: '@micro-frontend/mcp-demo-app'
+      APP_KIND: remote
+      PORT: 5181
+    ports:
+      - '5181:5181'
+
   shell:
     build:
       <<: *app-build
@@ -144,6 +159,7 @@ services:
       - vue-commerce
       - angular-ops
       - design-system
+      - mcp-demo
     environment:
       APP_FILTER: '@micro-frontend/shell'
       APP_KIND: shell
@@ -151,3 +167,39 @@ services:
       <<: *shell-public-env
     ports:
       - '3001:3001'
+
+  mcp-apps-server:
+    build:
+      <<: *app-build
+      args:
+        APP_FILTER: '@micro-frontend/mcp-apps-server'
+    depends_on:
+      - shell
+      - customer
+      - billing
+      - analytics
+      - admin
+      - ai-assistant
+      - vue-commerce
+      - angular-ops
+      - design-system
+      - mcp-demo
+    environment:
+      APP_FILTER: '@micro-frontend/mcp-apps-server'
+      APP_KIND: mcp
+      PORT: 8787
+      SHELL_ORIGIN: http://shell:3001
+      PUBLIC_MCP_ORIGIN: https://ai-assistant.manojmukherjee.co.in
+      MCP_APPS_HOST_PROFILE: portable
+      MCP_APPS_ASSET_VERSION: 0.8.0-podman
+      MCP_APP_CUSTOMER_PUBLIC_ORIGIN: https://customer.manojmukherjee.co.in
+      MCP_APP_BILLING_PUBLIC_ORIGIN: https://billing.manojmukherjee.co.in
+      MCP_APP_ANALYTICS_PUBLIC_ORIGIN: https://analytics.manojmukherjee.co.in
+      MCP_APP_ADMIN_PUBLIC_ORIGIN: https://admin.manojmukherjee.co.in
+      MCP_APP_AI_ASSISTANT_PUBLIC_ORIGIN: https://ai-assistant.manojmukherjee.co.in
+      MCP_APP_VUE_COMMERCE_PUBLIC_ORIGIN: https://vue-commerce.manojmukherjee.co.in
+      MCP_APP_ANGULAR_OPS_PUBLIC_ORIGIN: https://angular-ops.manojmukherjee.co.in
+      MCP_APP_DESIGN_SYSTEM_PUBLIC_ORIGIN: https://design-system.manojmukherjee.co.in
+      MCP_APP_MCP_DEMO_PUBLIC_ORIGIN: https://mcp-demo.manojmukherjee.co.in
+    ports:
+      - '8787:8787'

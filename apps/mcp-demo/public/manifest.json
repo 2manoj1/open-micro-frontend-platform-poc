@@ -1,0 +1,9 @@
+{
+  "id": "mcp-demo",
+  "name": "MCP Apps SDK Demo",
+  "version": "0.1.0",
+  "componentTag": "micro-mcp-demo-app",
+  "entry": "/src/main.tsx",
+  "permissions": ["ai:invoke", "mcp:tools", "mcp:resources"],
+  "features": ["native-ai-trigger", "communication-trace", "generated-ui"]
+}

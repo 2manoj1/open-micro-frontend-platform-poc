@@ -6,12 +6,18 @@ export default defineConfig(({ command }) => ({
     'process.env.NODE_ENV': JSON.stringify(command === 'build' ? 'production' : 'development'),
   },
   plugins: [react()],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom/client'],
+  },
   build: {
     lib: {
       entry: 'src/main.tsx',
-      name: 'AdminApp',
+      name: 'McpDemoApp',
       formats: ['es'],
-      fileName: () => 'admin-app.js',
+      fileName: () => 'mcp-demo-app.js',
     },
     codeSplitting: false,
     target: 'esnext',
@@ -19,12 +25,12 @@ export default defineConfig(({ command }) => ({
   },
   server: {
     host: '127.0.0.1',
-    port: 5176,
+    port: 5181,
     cors: true,
     allowedHosts: ['.manojmukherjee.co.in'],
   },
   preview: {
-    port: 5176,
+    port: 5181,
     cors: true,
     allowedHosts: ['.manojmukherjee.co.in'],
   },

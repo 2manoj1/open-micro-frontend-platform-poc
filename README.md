@@ -173,7 +173,7 @@ The AI Assistant app now demonstrates three AI-native paths in one portable micr
 
 See [AI_USE_CASES.md](AI_USE_CASES.md) for the full use-case guide.
 
-To test the AI Assistant as a real MCP App in ChatGPT Plus through Cloudflare Tunnel, see [MCP_APPS_CHATGPT.md](MCP_APPS_CHATGPT.md).
+To test the MCP Apps server and demo surfaces in ChatGPT, Claude, the MCP Inspector, and Cloudflare Tunnel, see [docs/MCP_TESTING.md](docs/MCP_TESTING.md).
 
 ## Configuration
 

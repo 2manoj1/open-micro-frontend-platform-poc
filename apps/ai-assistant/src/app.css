@@ -38,17 +38,153 @@
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  padding: 24px;
+  padding: 24px 24px 16px;
 }
 
 .insights article,
+.signal-card,
+.workflow-panel,
 .mcp-panel,
 .thread,
-.composer {
+.composer,
+.prompt-strip {
   background: var(--app-panel);
   border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 16px;
+}
+
+.signal-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin: 0 24px 16px;
+}
+
+.signal-card {
+  background: #fff;
+  display: grid;
+  gap: 12px;
+  min-height: 156px;
+}
+
+.signal-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.signal-card span,
+.workflow-panel > div span {
+  color: var(--app-muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.signal-card strong,
+.workflow-panel > div strong {
+  color: #0f172a;
+  display: block;
+  font-size: 16px;
+}
+
+.signal-card b {
+  align-self: start;
+  border-radius: 6px;
+  display: inline-flex;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 6px 10px;
+  width: fit-content;
+}
+
+.signal-card.high b {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.signal-card.medium b {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.signal-card.low b {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.signal-card p {
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.workflow-panel {
+  background: #fff;
+  margin: 0 24px 16px;
+}
+
+.workflow-panel > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+}
+
+.workflow-panel ol {
+  counter-reset: workflow;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.workflow-panel li {
+  align-items: center;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  color: #334155;
+  counter-increment: workflow;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 34px minmax(88px, .32fr) 1fr;
+  line-height: 1.4;
+  min-height: 54px;
+  padding: 10px 12px;
+}
+
+.workflow-panel li::before {
+  align-items: center;
+  background: #ecfeff;
+  border-radius: 999px;
+  color: #0e7490;
+  content: counter(workflow);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 900;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.workflow-panel li.next {
+  border-color: #a5f3fc;
+  box-shadow: inset 3px 0 0 var(--app-accent);
+}
+
+.workflow-panel li.watch {
+  border-color: #fde68a;
+  box-shadow: inset 3px 0 0 #f59e0b;
+}
+
+.workflow-panel li span {
+  color: #0f172a;
+  font-weight: 850;
 }
 
 .mcp-panel {
@@ -167,6 +303,31 @@
   max-width: 80%;
 }
 
+.prompt-strip {
+  background: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 24px 16px;
+}
+
+.prompt-strip button {
+  background: #f8fafc;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  color: #0f172a;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  padding: 9px 11px;
+}
+
+.prompt-strip button:hover {
+  border-color: var(--app-accent);
+  color: #0e7490;
+}
+
 .composer {
   display: flex;
   gap: 10px;
@@ -200,4 +361,25 @@
 .composer button:disabled {
   cursor: wait;
   opacity: .68;
+}
+
+@media (max-width: 700px) {
+  .composer,
+  .prompt-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .composer button {
+    min-height: 44px;
+  }
+
+  .workflow-panel li {
+    align-items: start;
+    grid-template-columns: 34px 1fr;
+  }
+
+  .workflow-panel li span {
+    grid-column: 2;
+  }
 }

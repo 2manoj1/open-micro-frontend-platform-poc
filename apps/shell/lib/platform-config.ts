@@ -60,6 +60,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ORIGIN ?? 'http://127.0.0.1:5178',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ORIGIN ?? 'http://127.0.0.1:5179',
     'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ORIGIN ?? 'http://127.0.0.1:5180',
+    'mcp-demo': process.env.NEXT_PUBLIC_MCP_DEMO_APP_ORIGIN ?? 'http://127.0.0.1:5181',
   },
   localAppEntryPaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_ENTRY_PATH ?? localEntryPath('customer', 'tsx'),
@@ -70,6 +71,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_ENTRY_PATH ?? localEntryPath('vue-commerce', 'ts'),
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_ENTRY_PATH ?? localEntryPath('angular-ops', 'ts'),
     'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_ENTRY_PATH ?? localEntryPath('design-system', 'ts'),
+    'mcp-demo': process.env.NEXT_PUBLIC_MCP_DEMO_APP_ENTRY_PATH ?? localEntryPath('mcp-demo', 'tsx'),
   },
   localAppStylePaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_STYLE_PATH ?? localStylePath('customer'),
@@ -80,6 +82,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_STYLE_PATH ?? localStylePath('vue-commerce'),
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_STYLE_PATH ?? localStylePath('angular-ops'),
     'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH ?? localStylePath('design-system'),
+    'mcp-demo': process.env.NEXT_PUBLIC_MCP_DEMO_APP_STYLE_PATH ?? localStylePath('mcp-demo'),
   },
   localAppManifestPaths: {
     customer: process.env.NEXT_PUBLIC_CUSTOMER_APP_MANIFEST_PATH ?? '/manifest.json',
@@ -90,6 +93,7 @@ export const shellPlatformConfig: ShellPlatformConfig = {
     'vue-commerce': process.env.NEXT_PUBLIC_VUE_COMMERCE_APP_MANIFEST_PATH ?? '/manifest.json',
     'angular-ops': process.env.NEXT_PUBLIC_ANGULAR_OPS_APP_MANIFEST_PATH ?? '/manifest.json',
     'design-system': process.env.NEXT_PUBLIC_DESIGN_SYSTEM_APP_MANIFEST_PATH ?? '/manifest.json',
+    'mcp-demo': process.env.NEXT_PUBLIC_MCP_DEMO_APP_MANIFEST_PATH ?? '/manifest.json',
   },
 }
 
@@ -192,6 +196,28 @@ export const localMicroAppDefinitions: LocalMicroAppDefinition[] = [
       resources: ['knowledge.article', 'customer.profile', 'billing.invoice'],
       prompts: ['support-triage', 'release-risk-review'],
       eventNamespaces: ['ai.*', 'mcp.tool.*', 'mcp.prompt.*', 'mcp.resource.*'],
+    },
+  },
+  {
+    id: 'mcp-demo',
+    name: 'MCP Apps SDK Demo',
+    description: 'Interactive native AI demo for MCP host model calls, tools, resources, and generated UI state.',
+    domain: 'AI Platform',
+    icon: 'Sparkles',
+    accent: 'blue',
+    status: 'Preview',
+    framework: 'react',
+    rendering: ['csr'],
+    runtime: { type: 'web-component', tagName: 'micro-mcp-demo-app' },
+    version: '0.1.0',
+    owner: 'AI Platform',
+    permissions: ['ai:invoke', 'mcp:tools', 'mcp:resources'],
+    aiNative: true,
+    mcp: {
+      tools: ['mcpDemo.runNativeFlow', 'mcpDemo.showTrace', 'mcpDemo.generateUiState'],
+      resources: ['platform.signal', 'sdk.trace', 'generated.ui'],
+      prompts: ['native-ai-flow-demo', 'cross-platform-sdk-trace'],
+      eventNamespaces: ['mcp-demo.*', 'mcp.tool.*', 'mcp.resource.*', 'mcp.prompt.*'],
     },
   },
   {

@@ -16,7 +16,7 @@ const PUBLIC_MCP_ORIGIN = trimTrailingSlash(process.env.PUBLIC_MCP_ORIGIN ?? `ht
 const PUBLIC_APP_BASE_DOMAIN = process.env.PUBLIC_APP_BASE_DOMAIN ?? 'manojmukherjee.co.in';
 const PUBLIC_APP_PROTOCOL = process.env.PUBLIC_APP_PROTOCOL ?? 'https';
 const MCP_APPS_HOST_PROFILE = (process.env.MCP_APPS_HOST_PROFILE ?? 'portable').toLowerCase();
-const MCP_APPS_ASSET_VERSION = process.env.MCP_APPS_ASSET_VERSION ?? String(Date.now());
+const MCP_APPS_ASSET_VERSION = process.env.MCP_APPS_ASSET_VERSION ?? '0.8.0-dev-3';
 const ENABLED_APP_IDS = new Set(readCsv(process.env.MCP_APPS_ENABLED));
 const DISABLED_APP_IDS = new Set(readCsv(process.env.MCP_APPS_DISABLED));
 
@@ -61,6 +61,34 @@ async function main() {
         return;
       }
 
+      if (request.method === 'GET' && url.pathname.startsWith('/apps/') && url.pathname.endsWith('/resource')) {
+        const parts = url.pathname.split('/');
+        const appId = parts[2];
+        const app = cachedApps.find((a) => a.id === appId);
+        if (!app) {
+          sendJson(response, 404, { error: `App ${appId} not found` });
+          return;
+        }
+
+        if (!app.manifest) {
+          sendJson(response, 500, { error: `No cached runtime manifest is available for ${app.name}` });
+          return;
+        }
+
+        const html = createMcpAppHtml(app.manifest, {
+          shellOrigin: PUBLIC_MCP_ORIGIN,
+          resourceOrigin: PUBLIC_MCP_ORIGIN,
+        });
+
+        response.writeHead(200, {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+        });
+        response.end(html);
+        return;
+      }
+
       if (url.pathname === '/api/ai-assistant/chat') {
         if (request.method === 'OPTIONS') {
           sendJson(response, 204, {});
@@ -83,6 +111,26 @@ async function main() {
           response,
           200,
           await createAssistantChatResponse(prompt, typeof payload?.context === 'string' ? payload.context : undefined)
+        );
+        return;
+      }
+
+      if (url.pathname === '/api/mcp-demo/run') {
+        if (request.method === 'OPTIONS') {
+          sendJson(response, 204, {});
+          return;
+        }
+
+        if (request.method !== 'POST') {
+          sendJson(response, 405, { error: 'Method not allowed' });
+          return;
+        }
+
+        const payload = await readJsonBody(request);
+        sendJson(
+          response,
+          200,
+          createMcpDemoRunResponse(typeof payload?.scenario === 'string' ? payload.scenario : undefined)
         );
         return;
       }
@@ -116,10 +164,15 @@ async function main() {
       }
 
       const body = await readJsonBody(request);
+
+      let requestedResourceUri = null;
+      if (body && body.method === 'resources/read' && body.params && typeof body.params.uri === 'string') {
+        requestedResourceUri = body.params.uri;
+      }
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
       });
-      const mcpServer = createOpenMicroPlatformServer(cachedApps, mcpRequest.profile, mcpRequest.path);
+      const mcpServer = createOpenMicroPlatformServer(cachedApps, mcpRequest.profile, mcpRequest.path, requestedResourceUri);
 
       await mcpServer.connect(transport);
       await transport.handleRequest(request, response, body);
@@ -151,7 +204,7 @@ async function main() {
   });
 }
 
-function createOpenMicroPlatformServer(apps, hostProfile, mcpPath) {
+function createOpenMicroPlatformServer(apps, hostProfile, mcpPath, requestedResourceUri) {
   const server = new McpServer(
     {
       name: 'open-micro-platform-mcp-apps',
@@ -167,7 +220,7 @@ function createOpenMicroPlatformServer(apps, hostProfile, mcpPath) {
   );
 
   for (const app of apps) {
-    registerPortableMicroApp(server, app, hostProfile, mcpPath);
+    registerPortableMicroApp(server, app, hostProfile, mcpPath, requestedResourceUri);
     registerAppCapabilityTools(server, app);
   }
 
@@ -203,7 +256,7 @@ function createOpenMicroPlatformServer(apps, hostProfile, mcpPath) {
   return server;
 }
 
-function registerPortableMicroApp(server, app, hostProfile, mcpPath) {
+function registerPortableMicroApp(server, app, hostProfile, mcpPath, requestedResourceUri) {
   const resourceUri = app.resourceUri;
   const toolName = `open_micro_app_${toToolName(app.id)}`;
   const uiMeta = createUiMeta(app, hostProfile);
@@ -228,11 +281,16 @@ function registerPortableMicroApp(server, app, hostProfile, mcpPath) {
         },
       },
     },
-    async ({ prompt }) => ({
+    async ({ prompt }) => {
+      console.log(`[mcp-apps-server] tool open_micro_app_${app.id} called with prompt:`, prompt);
+      const textResult = (prompt && app.id === 'ai-assistant')
+        ? buildAssistantSummary(app, prompt)
+        : `${app.name} is ready as an MCP App. Resource: ${resourceUri}`;
+      return {
       content: [
         {
           type: 'text',
-          text: `${app.name} is ready as an MCP App. Resource: ${resourceUri}`,
+          text: textResult,
         },
         {
           type: 'resource_link',
@@ -256,7 +314,8 @@ function registerPortableMicroApp(server, app, hostProfile, mcpPath) {
         resources: app.resources,
         prompts: app.prompts,
       },
-    })
+      };
+    }
   );
 
   registerAppResource(
@@ -268,6 +327,7 @@ function registerPortableMicroApp(server, app, hostProfile, mcpPath) {
       _meta: createResourceMeta(app, uiMeta),
     },
     async () => {
+      console.log(`[mcp-apps-server] registerAppResource handler called for ${app.name} (${resourceUri})`);
       if (!app.manifest) {
         throw new Error(`No cached runtime manifest is available for ${app.name}`);
       }
@@ -289,11 +349,50 @@ function registerPortableMicroApp(server, app, hostProfile, mcpPath) {
       };
     }
   );
+
+  if (requestedResourceUri && requestedResourceUri !== resourceUri) {
+    const baseUri = resourceUri.split('?')[0];
+    if (requestedResourceUri.split('?')[0] === baseUri) {
+      console.log(`[mcp-apps-server] Dynamically registering matched historical template URI: ${requestedResourceUri}`);
+      registerAppResource(
+        server,
+        app.name,
+        requestedResourceUri,
+        {
+          description: `${app.name} portable MCP Apps HTML resource (matched historical version).`,
+          _meta: createResourceMeta(app, uiMeta),
+        },
+        async () => {
+          console.log(`[mcp-apps-server] registerAppResource handler called for ${app.name} (${requestedResourceUri})`);
+          if (!app.manifest) {
+            throw new Error(`No cached runtime manifest is available for ${app.name}`);
+          }
+
+          const html = createMcpAppHtml(app.manifest, {
+            shellOrigin: PUBLIC_MCP_ORIGIN,
+            resourceOrigin: PUBLIC_MCP_ORIGIN,
+          });
+
+          return {
+            contents: [
+              {
+                uri: requestedResourceUri,
+                mimeType: RESOURCE_MIME_TYPE,
+                text: html,
+                _meta: createResourceMeta(app, uiMeta),
+              },
+            ],
+          };
+        }
+      );
+    }
+  }
 }
 
 function registerAppCapabilityTools(server, app) {
   for (const tool of app.tools) {
     const toolName = toToolName(tool);
+    const resourceUri = app.resourceUri;
 
     server.registerTool(
       toolName,
@@ -307,12 +406,28 @@ function registerAppCapabilityTools(server, app) {
           readOnlyHint: true,
           openWorldHint: true,
         },
+        _meta: {
+          ui: {
+            resourceUri,
+            visibility: ['model', 'app'],
+          },
+        },
       },
-      async ({ prompt }) => ({
+      async ({ prompt }) => {
+        console.log(`[mcp-apps-server] capability tool ${toolName} called with prompt:`, prompt);
+        return {
         content: [
           {
             type: 'text',
             text: buildAssistantSummary(app, prompt),
+          },
+          {
+            type: 'resource_link',
+            uri: resourceUri,
+            name: `${app.id}-widget`,
+            title: app.name,
+            mimeType: RESOURCE_MIME_TYPE,
+            description: `${app.name} interactive MCP Apps widget`,
           },
         ],
         structuredContent: {
@@ -321,24 +436,66 @@ function registerAppCapabilityTools(server, app) {
           prompt: prompt ?? null,
           resources: app.resources,
           result: buildAssistantSummary(app, prompt),
+          resourceUri,
         },
-      })
+        };
+      }
     );
   }
 }
 
 function buildAssistantSummary(app, prompt) {
+  if (app.id === 'mcp-demo') {
+    return buildMcpDemoSummary(prompt);
+  }
+
   if (app.id !== 'ai-assistant') {
     return `${app.name} handled ${prompt ?? 'the requested task'} with its registered MCP capability.`;
   }
 
+  const question = prompt ?? 'Investigate billing conversion';
+  const normalizedPrompt = question.toLowerCase();
+
+  if (normalizedPrompt.includes('plan') || normalizedPrompt.includes('workflow')) {
+    return [
+      `MCP host tool result for "${question}":`,
+      'Recovery workflow:',
+      '1. Analytics confirms the dip is concentrated in billing checkout and enterprise renewal cohorts.',
+      '2. Admin re-enables billing-autopay behind a guarded 25% rollout.',
+      '3. Billing retries or manually reviews the overdue enterprise invoice.',
+      '4. Customer owners contact the two at-risk accounts while Analytics watches recovery for 24 hours.',
+    ].join(' ');
+  }
+
   return [
-    prompt ? `MCP host tool result for "${prompt}":` : 'MCP host tool result:',
-    'Billing has one overdue enterprise invoice.',
-    'Analytics reports a 2% conversion dip.',
-    'The admin flag billing-autopay is disabled.',
-    'Recommended next action: enable a guarded 25% rollout and notify account owners.',
+    `MCP host tool result for "${question}":`,
+    'Billing conversion is down because Analytics shows a 2% billing checkout dip while Admin has billing-autopay disabled for the affected tenant group.',
+    'Billing adds one overdue enterprise invoice, and Customer shows two enterprise accounts at renewal risk, so enterprise payment friction is likely amplifying the drop.',
+    'Recommended next action: re-enable billing-autopay through a guarded 25% rollout, retry or review the overdue invoice, notify account owners, and monitor payment failures by cohort.',
   ].join(' ');
+}
+
+function buildMcpDemoSummary(prompt) {
+  return [
+    prompt ? `MCP Apps SDK Demo result for "${prompt}":` : 'MCP Apps SDK Demo result:',
+    'The widget received a user click, shared model context, requested native host AI, called an MCP server tool, and rendered a generated recovery UI.',
+    'Generated UI state: Admin enables billing-autopay at 25%, Billing reviews the overdue enterprise invoice, and Analytics watches checkout recovery for 24 hours.',
+  ].join(' ');
+}
+
+function createMcpDemoRunResponse(scenario = 'billing-conversion-dip') {
+  return {
+    scenario,
+    runtime: 'server-api',
+    headline: 'Native AI generated a recovery UI',
+    summary:
+      'The MCP Apps demo completed through the portable MCP server API fallback. In ChatGPT or Claude, the same button first attempts model context, host sampling, and server tool calls.',
+    actions: [
+      { app: 'Admin', action: 'Enable billing-autopay through a 25% guarded rollout.', owner: 'Platform Admin' },
+      { app: 'Billing', action: 'Review the overdue enterprise invoice and retry payment.', owner: 'Revenue Ops' },
+      { app: 'Analytics', action: 'Track checkout recovery and payment failures for 24 hours.', owner: 'Data Platform' },
+    ],
+  };
 }
 
 async function createAssistantChatResponse(prompt, context = defaultAssistantContext()) {
@@ -449,10 +606,24 @@ async function callGemini(prompt, context) {
 }
 
 function buildDeterministicApiAnswer(prompt, context) {
+  const normalizedPrompt = prompt.toLowerCase();
+
+  if (normalizedPrompt.includes('plan') || normalizedPrompt.includes('workflow')) {
+    return [
+      `For "${prompt}", I turned the platform context into a recovery workflow.`,
+      '1. Analytics: confirm the dip is isolated to billing checkout and enterprise renewal cohorts.',
+      '2. Admin: re-enable billing-autopay with a guarded 25% rollout.',
+      '3. Billing: retry or manually review the overdue enterprise invoice.',
+      '4. Customer: notify account owners for the two renewal-risk accounts and watch conversion/payment failures for 24 hours.',
+      `Signals used: ${context}`,
+    ].join(' ');
+  }
+
   return [
-    `For "${prompt}", I correlated the platform context instead of returning static mock data.`,
-    context,
-    'Recommended workflow: open Billing for the overdue invoice, enable a 25% billing-autopay rollout in Admin, ask Analytics to monitor checkout recovery, and notify the two at-risk customer owners.',
+    `For "${prompt}", billing conversion most likely dipped because Admin has billing-autopay disabled for the same segment where Analytics reports a 2% billing checkout drop.`,
+    'Billing adds one overdue enterprise invoice, and Customer adds two renewal-risk accounts, so enterprise payment friction is amplifying the impact.',
+    'Recommended workflow: re-enable billing-autopay at 25%, retry or review the overdue invoice, notify affected account owners, and have Analytics monitor checkout recovery for 24 hours.',
+    `Signals used: ${context}`,
     'This response came from the server API fallback, so the same micro app still works when an AI host bridge or Chrome Built-in AI is unavailable.',
   ].join(' ');
 }
@@ -467,7 +638,7 @@ function toAssistantResponse(text, provider) {
 }
 
 function defaultAssistantContext() {
-  return 'Billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, admin has billing-autopay disabled, and customer health shows two enterprise accounts at renewal risk.';
+  return 'Analytics shows billing checkout conversion down 2%, Admin has billing-autopay disabled for the affected tenant group, Billing has 1 overdue enterprise invoice, and Customer health shows two enterprise accounts at renewal risk.';
 }
 
 async function loadMcpApps() {
@@ -493,7 +664,7 @@ async function loadMcpApps() {
 function toMcpServerApp(app) {
   const descriptor = app.descriptor ?? {};
   const ui = descriptor._meta?.ui ?? {};
-  const resourceUri = descriptor.uri ?? ui.resourceUri ?? `ui://micro-app/${app.id}`;
+  const resourceUri = `${descriptor.uri ?? ui.resourceUri ?? `ui://micro-app/${app.id}`}?v=${MCP_APPS_ASSET_VERSION}`;
   const resourceUrl = makePublicResourceUrl(app.id);
   const csp = ui.csp ?? {};
   const connectDomains = normalizeDomains(csp.connect_domains ?? csp.connectDomains, SHELL_ORIGIN);
@@ -554,7 +725,12 @@ function resolveMcpRequest(pathname) {
 function createUiMeta(app, hostProfile) {
   const uiMeta = {
     resourceUri: app.resourceUri,
-    csp: app.csp,
+    csp: {
+      connectDomains: app.csp.connectDomains,
+      connect_domains: app.csp.connectDomains,
+      resourceDomains: app.csp.resourceDomains,
+      resource_domains: app.csp.resourceDomains,
+    },
     permissions: app.permissions,
   };
   const uiDomain = getMcpUiDomain(app.id, app.appPublicOrigin, hostProfile);
@@ -581,7 +757,7 @@ function createResourceMeta(app, uiMeta) {
 function makePublicResourceUrl(appId) {
   const explicit = process.env[`MCP_APP_${toEnvKey(appId)}_RESOURCE_URL`];
   if (explicit) return explicit;
-  return `${SHELL_ORIGIN}/api/mcp/apps/${appId}/resource`;
+  return `${PUBLIC_MCP_ORIGIN}/apps/${appId}/resource`;
 }
 
 function getPublicAppOrigin(appId) {

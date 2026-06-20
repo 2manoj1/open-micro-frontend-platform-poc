@@ -1,5 +1,5 @@
 import { PlatformEvents, eventBus } from './event-bus.js';
-import { notifyMcpHost, type McpJsonValue } from './mcp-app.js';
+import { notifyMcpHost, connectOfficialMcpAppRuntime, type McpJsonValue } from './mcp-app.js';
 import type { MicroAppContext } from './micro-app.js';
 import { reportMicroAppError, type PlatformLogger } from './observability.js';
 
@@ -28,10 +28,50 @@ export function defineMicroAppElement(
 
     async connectedCallback() {
       const context = this.createContext();
+      console.log(`[Platform SDK] connectedCallback triggered for: ${context.app.id}`);
+
+      let connectPromise: Promise<unknown> | null = null;
+
+      // Auto-connect to official MCP runtime if running in iframe, not AI-native, and not connected yet
+      const fullContext = typeof window !== 'undefined' ? (window as any).__MICRO_APP_CONTEXT__ : null;
+      const isAiNative = fullContext?.app?.capabilities?.aiNative === true;
+
+      if (typeof window !== 'undefined' && window.parent !== window && !isAiNative && !(window as any).__MCP_RUNTIME_CONNECTED__) {
+        console.log(`[Platform SDK] Auto-connecting to MCP runtime for: ${context.app.id}...`);
+        connectPromise = connectOfficialMcpAppRuntime({
+          name: context.app.name,
+          version: context.app.version ?? '1.0.0',
+          capabilities: {
+            sampling: {},
+            serverTools: {},
+            modelContext: {},
+          },
+        }).then((runtime) => {
+          console.log(`[Platform SDK] connectOfficialMcpAppRuntime finished for: ${context.app.id}. Status:`, runtime.status);
+          const fullContext = (window as any).__MICRO_APP_CONTEXT__;
+          const mcpApps = fullContext?.app?.capabilities?.mcpApps;
+          console.log(`[Platform SDK] Notifying ui/ready for: ${context.app.id} with tools:`, mcpApps?.tools, "resources:", mcpApps?.resources);
+          notifyMcpHost('ui/ready', {
+            appId: context.app.id,
+            tools: mcpApps?.tools ?? [],
+            resources: mcpApps?.resources ?? [],
+            prompts: mcpApps?.prompts ?? [],
+          });
+          return runtime;
+        }).catch((error) => {
+          console.warn(`[Platform SDK] Auto-connecting to MCP runtime for ${context.app.id} failed:`, error);
+          return null;
+        });
+      }
+
       try {
         const mounted = await lifecycle.mount(this, context);
         this.cleanup = typeof mounted === 'function' ? mounted : undefined;
         await nextPaint();
+
+        if (connectPromise) {
+          await connectPromise;
+        }
         this.dispatchEvent(
           new CustomEvent('micro-app:ready', {
             bubbles: true,

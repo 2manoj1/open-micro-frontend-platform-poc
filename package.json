@@ -11,24 +11,26 @@
   ],
   "scripts": {
     "dev": "pnpm --filter @micro-frontend/shell dev",
-    "dev:all": "pnpm --parallel --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app --filter @micro-frontend/design-system-app dev",
-    "dev:all:ci": "pnpm --filter @micro-frontend/customer-app dev --host 127.0.0.1 --port 5173 & pnpm --filter @micro-frontend/billing-app dev --host 127.0.0.1 --port 5174 & pnpm --filter @micro-frontend/analytics-app dev --host 127.0.0.1 --port 5175 & pnpm --filter @micro-frontend/admin-app dev --host 127.0.0.1 --port 5176 & pnpm --filter @micro-frontend/ai-assistant-app dev --host 127.0.0.1 --port 5177 & pnpm --filter @micro-frontend/vue-commerce-app dev --host 127.0.0.1 --port 5178 & pnpm --filter @micro-frontend/angular-ops-app dev --host 127.0.0.1 --port 5179 & pnpm --filter @micro-frontend/design-system-app dev --host 127.0.0.1 --port 5180 & pnpm --filter @micro-frontend/shell dev --hostname 127.0.0.1 --port 3001",
-    "build": "pnpm -r --filter @micro-frontend/design-system --filter @openmf/core --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app --filter @micro-frontend/design-system-app build",
+    "dev:all": "pnpm --parallel --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app --filter @micro-frontend/design-system-app --filter @micro-frontend/mcp-demo-app dev",
+    "dev:all:ci": "pnpm --filter @micro-frontend/customer-app dev --host 127.0.0.1 --port 5173 & pnpm --filter @micro-frontend/billing-app dev --host 127.0.0.1 --port 5174 & pnpm --filter @micro-frontend/analytics-app dev --host 127.0.0.1 --port 5175 & pnpm --filter @micro-frontend/admin-app dev --host 127.0.0.1 --port 5176 & pnpm --filter @micro-frontend/ai-assistant-app dev --host 127.0.0.1 --port 5177 & pnpm --filter @micro-frontend/vue-commerce-app dev --host 127.0.0.1 --port 5178 & pnpm --filter @micro-frontend/angular-ops-app dev --host 127.0.0.1 --port 5179 & pnpm --filter @micro-frontend/design-system-app dev --host 127.0.0.1 --port 5180 & pnpm --filter @micro-frontend/mcp-demo-app dev --host 127.0.0.1 --port 5181 & pnpm --filter @micro-frontend/shell dev --hostname 127.0.0.1 --port 3001",
+    "build": "pnpm -r --filter @micro-frontend/design-system --filter @openmf/core --filter @micro-frontend/shell --filter @micro-frontend/customer-app --filter @micro-frontend/billing-app --filter @micro-frontend/analytics-app --filter @micro-frontend/admin-app --filter @micro-frontend/ai-assistant-app --filter @micro-frontend/vue-commerce-app --filter @micro-frontend/angular-ops-app --filter @micro-frontend/design-system-app --filter @micro-frontend/mcp-demo-app build",
     "start": "pnpm --filter @micro-frontend/shell start",
     "lint": "pnpm -r --filter @micro-frontend/design-system --filter @openmf/core --filter @micro-frontend/shell --filter @micro-frontend/mcp-apps-server lint",
     "e2e": "pnpm --filter @micro-frontend/platform-e2e test",
     "e2e:screenshots": "pnpm --filter @micro-frontend/platform-e2e screenshots",
     "mcp:apps": "pnpm --filter @micro-frontend/mcp-apps-server start",
     "mcp:apps:dev": "pnpm --filter @micro-frontend/mcp-apps-server dev",
+    "mcp:check": "node scripts/check-mcp-cloud.mjs",
+    "mcp:check:local": "node scripts/check-mcp-cloud.mjs --base http://localhost:8787 --mcp-demo-origin http://localhost:5181 --allow-localhost",
     "mcp:tunnel:config": "cloudflared tunnel route dns open-micro-platform-mcp ai-assistant.manojmukherjee.co.in",
     "mcp:tunnel": "cloudflared tunnel --config cloudflare/mcp-apps-tunnel.yml run open-micro-platform-mcp",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
-    "podman:build": "for service in customer billing analytics admin ai-assistant vue-commerce angular-ops design-system shell; do podman compose build \"$service\" || exit 1; done",
+    "podman:build": "for service in customer billing analytics admin ai-assistant vue-commerce angular-ops design-system mcp-demo shell mcp-apps-server; do podman compose build \"$service\" || exit 1; done",
     "podman:up": "pnpm podman:build && podman compose up -d",
     "podman:down": "podman compose down",
-    "podman:logs": "podman compose logs -f shell customer billing analytics admin ai-assistant vue-commerce angular-ops design-system"
+    "podman:logs": "podman compose logs -f shell customer billing analytics admin ai-assistant vue-commerce angular-ops design-system mcp-demo mcp-apps-server"
   },
   "pnpm": {
     "overrides": {

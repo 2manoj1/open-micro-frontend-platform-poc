@@ -17,6 +17,15 @@ ingress:
   - hostname: ai-assistant.manojmukherjee.co.in
     path: /api/ai-assistant/chat
     service: http://127.0.0.1:8787
+  - hostname: shell.manojmukherjee.co.in
+    path: /api/ai-assistant/chat
+    service: http://127.0.0.1:3001
+  - hostname: shell.manojmukherjee.co.in
+    path: /api/mcp-demo/run
+    service: http://127.0.0.1:3001
+  - hostname: shell.manojmukherjee.co.in
+    path: /api/mcp/apps
+    service: http://127.0.0.1:3001
   - hostname: customer.manojmukherjee.co.in
     path: /mcp
     service: http://127.0.0.1:8787
@@ -38,6 +47,27 @@ ingress:
   - hostname: design-system.manojmukherjee.co.in
     path: /mcp
     service: http://127.0.0.1:8787
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /mcp-demo-app
+    service: http://127.0.0.1:5181
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /manifest.json
+    service: http://127.0.0.1:5181
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /assets
+    service: http://127.0.0.1:5181
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /mcp/
+    service: http://127.0.0.1:8787
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /mcp
+    service: http://127.0.0.1:8787
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /apps
+    service: http://127.0.0.1:8787
+  - hostname: mcp-demo.manojmukherjee.co.in
+    path: /healthz
+    service: http://127.0.0.1:8787
   - hostname: ai-assistant.manojmukherjee.co.in
     path: /apps
     service: http://127.0.0.1:8787
@@ -46,6 +76,8 @@ ingress:
     service: http://127.0.0.1:8787
   - hostname: ai-assistant.manojmukherjee.co.in
     service: http://127.0.0.1:5177
+  - hostname: shell.manojmukherjee.co.in
+    service: http://127.0.0.1:3001
   - hostname: customer.manojmukherjee.co.in
     service: http://127.0.0.1:5173
   - hostname: billing.manojmukherjee.co.in
@@ -60,4 +92,6 @@ ingress:
     service: http://127.0.0.1:5179
   - hostname: design-system.manojmukherjee.co.in
     service: http://127.0.0.1:5180
+  - hostname: mcp-demo.manojmukherjee.co.in
+    service: http://127.0.0.1:5181
   - service: http_status:404

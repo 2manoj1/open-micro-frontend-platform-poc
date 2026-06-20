@@ -14,7 +14,7 @@ interface AssistantChatResponse {
 }
 
 const defaultContext =
-  'Billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, admin has billing-autopay disabled, and customer health shows two enterprise accounts at renewal risk.'
+  'Analytics shows billing checkout conversion down 2%, Admin has billing-autopay disabled for the affected tenant group, Billing has 1 overdue enterprise invoice, and Customer health shows two enterprise accounts at renewal risk.'
 
 export async function POST(request: NextRequest) {
   let payload: AssistantChatRequest
@@ -148,10 +148,24 @@ async function callGemini(prompt: string, context: string): Promise<string | und
 }
 
 function buildDeterministicAnswer(prompt: string, context: string): string {
+  const normalizedPrompt = prompt.toLowerCase()
+
+  if (normalizedPrompt.includes('plan') || normalizedPrompt.includes('workflow')) {
+    return [
+      `For "${prompt}", I turned the platform context into a recovery workflow.`,
+      '1. Analytics: confirm the dip is isolated to billing checkout and enterprise renewal cohorts.',
+      '2. Admin: re-enable billing-autopay with a guarded 25% rollout.',
+      '3. Billing: retry or manually review the overdue enterprise invoice.',
+      '4. Customer: notify account owners for the two renewal-risk accounts and watch conversion/payment failures for 24 hours.',
+      `Signals used: ${context}`,
+    ].join(' ')
+  }
+
   return [
-    `For "${prompt}", I correlated the platform context instead of returning static mock data.`,
-    context,
-    'Recommended workflow: open Billing for the overdue invoice, enable a 25% billing-autopay rollout in Admin, ask Analytics to monitor checkout recovery, and notify the two at-risk customer owners.',
+    `For "${prompt}", billing conversion most likely dipped because Admin has billing-autopay disabled for the same segment where Analytics reports a 2% billing checkout drop.`,
+    'Billing adds one overdue enterprise invoice, and Customer adds two renewal-risk accounts, so enterprise payment friction is amplifying the impact.',
+    'Recommended workflow: re-enable billing-autopay at 25%, retry or review the overdue invoice, notify affected account owners, and have Analytics monitor checkout recovery for 24 hours.',
+    `Signals used: ${context}`,
     'This response came from the server API fallback, so the same micro app still works when an AI host bridge or Chrome Built-in AI is unavailable.',
   ].join(' ')
 }

@@ -1,5 +1,5 @@
 import type { McpAppSandboxPermissions, MicroAppConfig } from './micro-app.js';
-import type { App, AppOptions } from '@modelcontextprotocol/ext-apps';
+import { App, type AppOptions } from '@modelcontextprotocol/ext-apps';
 
 export type McpJsonValue = null | boolean | number | string | McpJsonValue[] | { [key: string]: McpJsonValue };
 export type McpAppTextContent = { type: 'text'; text: string };
@@ -248,8 +248,11 @@ export async function connectOfficialMcpAppRuntime(
     return createDisconnectedOfficialRuntime('standalone');
   }
 
+  if (typeof window !== 'undefined') {
+    (window as any).__MCP_RUNTIME_CONNECTED__ = true;
+  }
+
   try {
-    const { App } = await import('@modelcontextprotocol/ext-apps');
     const app = new App(
       { name: options.name, version: options.version },
       options.capabilities ?? {},
@@ -261,7 +264,7 @@ export async function connectOfficialMcpAppRuntime(
     );
     installOfficialMcpHandlers(app, options.handlers);
 
-    await withTimeout(app.connect(), options.timeoutMs ?? 2_500, 'MCP Apps host connection timed out');
+    await withTimeout(app.connect(), options.timeoutMs ?? 10_000, 'MCP Apps host connection timed out');
 
     return {
       status: 'connected',
@@ -616,7 +619,6 @@ export function createMcpAppHtml(app: MicroAppConfig, options: McpAppHtmlOptions
         post('ui/ready', { appId: context.app.id, tagName: runtime.tagName });
       }
 
-      post('ui/initialize', { appId: context.app.id, capabilities: context.app.capabilities });
       mount().catch((error) => {
         console.error('[MCP Apps Resource]', error);
         post('ui/error', { appId: context.app.id, message: error?.message ?? String(error) });

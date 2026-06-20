@@ -15,6 +15,7 @@ const iconMap = {
   Palette,
   ShoppingCart,
   ShieldCheck,
+  Sparkles,
   Users,
 };
 
@@ -75,7 +76,7 @@ export default async function DashboardPage() {
                 <div className="flex items-start justify-between gap-3">
                   <span className={`rounded-lg border p-2 ${accentMap[app.accent as keyof typeof accentMap]}`}>
                     {(() => {
-                      const Icon = iconMap[app.icon as keyof typeof iconMap];
+                      const Icon = iconMap[app.icon as keyof typeof iconMap] ?? Plug;
                       return <Icon className="h-5 w-5" aria-hidden="true" />;
                     })()}
                   </span>

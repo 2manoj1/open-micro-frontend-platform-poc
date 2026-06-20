@@ -34,6 +34,20 @@ interface AssistantResponse {
   provider?: string;
 }
 
+interface PlatformSignal {
+  app: string;
+  label: string;
+  value: string;
+  severity: 'high' | 'medium' | 'low';
+  detail: string;
+}
+
+interface InvestigationStep {
+  app: string;
+  action: string;
+  status: 'done' | 'next' | 'watch';
+}
+
 interface ChromeLanguageModelSession {
   prompt: (input: string) => Promise<string>;
   destroy?: () => void;
@@ -60,17 +74,82 @@ declare global {
   }
 }
 
-const platformContext =
-  'Billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, admin has billing-autopay disabled, and customer health shows two enterprise accounts at renewal risk.';
+const platformSignals: PlatformSignal[] = [
+  {
+    app: 'Analytics',
+    label: 'Checkout conversion',
+    value: '-2.0%',
+    severity: 'high',
+    detail: 'Dip isolated to billing checkout and enterprise renewal cohorts.',
+  },
+  {
+    app: 'Admin',
+    label: 'billing-autopay',
+    value: 'Disabled',
+    severity: 'high',
+    detail: 'Feature flag was turned off for the same tenant group seeing the dip.',
+  },
+  {
+    app: 'Billing',
+    label: 'Enterprise invoices',
+    value: '1 overdue',
+    severity: 'medium',
+    detail: 'One strategic account has payment friction and needs owner follow-up.',
+  },
+  {
+    app: 'Customer',
+    label: 'Renewal risk',
+    value: '2 accounts',
+    severity: 'medium',
+    detail: 'Customer health is softening for affected enterprise accounts.',
+  },
+];
+
+const workflowSteps: InvestigationStep[] = [
+  {
+    app: 'Analytics',
+    action: 'Confirm the dip is concentrated in billing checkout, not top-of-funnel traffic.',
+    status: 'done',
+  },
+  {
+    app: 'Admin',
+    action: 'Re-enable billing-autopay behind a guarded 25% rollout.',
+    status: 'next',
+  },
+  {
+    app: 'Billing',
+    action: 'Retry or manually review the overdue enterprise invoice.',
+    status: 'next',
+  },
+  {
+    app: 'Customer',
+    action: 'Notify owners for the two renewal-risk accounts and monitor 24-hour recovery.',
+    status: 'watch',
+  },
+];
+
+const platformContext = platformSignals
+  .map((signal) => `${signal.app}: ${signal.label} is ${signal.value} (${signal.detail})`)
+  .join(' ');
 
 const fallbackAnalysis = [
-  'Cross-app analysis: billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, and the admin flag billing-autopay is disabled.',
-  'Recommended action: enable a guarded 25% rollout for billing-autopay, notify account owners, and ask analytics to watch checkout recovery for 24 hours.',
+  'Billing conversion dipped because Analytics shows a 2% checkout conversion drop in the billing path while Admin has billing-autopay disabled for the affected tenant group.',
+  'Billing adds one overdue enterprise invoice, and Customer adds two renewal-risk accounts, so the main cause is likely autopay friction with some enterprise payment follow-through risk.',
+  'Recommended action: re-enable billing-autopay through a guarded 25% rollout, retry or review the overdue invoice, notify account owners, and monitor checkout recovery for 24 hours.',
 ].join(' ');
+
+const demoPrompts = [
+  'Why did billing conversion dip?',
+  'Create a cross-app recovery plan',
+  'What should I check before re-enabling autopay?',
+];
 
 export function AiAssistantApp({ apiBaseUrl }: { apiBaseUrl?: string } = {}) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: 'I can summarize app health, explain events, and suggest next actions across the platform.' },
+    {
+      role: 'assistant',
+      text: 'I am watching Analytics, Billing, Admin, and Customer signals together. Ask about the conversion dip or run the recovery plan.',
+    },
   ]);
   const [draft, setDraft] = useState('Why did billing conversion dip?');
   const [builtInAiStatus, setBuiltInAiStatus] = useState<BuiltInAiStatus>('checking');
@@ -137,8 +216,16 @@ export function AiAssistantApp({ apiBaseUrl }: { apiBaseUrl?: string } = {}) {
           if (disposed) return;
           setHostAiStatus('connected');
           const text = readToolText(result);
-      if (!text || text.includes('ready as an MCP App')) return;
-      setLastRuntime('ai-native-mcp-tool');
+          if (!text || text.includes('ready as an MCP App')) return;
+          setLastRuntime('ai-native-mcp-tool');
+          setMessages((current) => [
+            ...current,
+            {
+              role: 'assistant',
+              text: withRuntimeLabel('AI Native MCP tool', text),
+              runtime: 'ai-native-mcp-tool',
+            },
+          ]);
         },
         onToolCancelled() {
           if (!disposed) setHostAiStatus('unavailable');
@@ -392,29 +479,57 @@ export function AiAssistantApp({ apiBaseUrl }: { apiBaseUrl?: string } = {}) {
     <section className="micro-app-container">
       <header className="micro-app-header">
         <span>AI Platform</span>
-        <h1>Assistant Workspace</h1>
-        <p>Local POC assistant flow for platform triage and cross-app context.</p>
+        <h1>AI Incident Copilot</h1>
+        <p>Cross-platform triage that correlates micro app state and returns an actionable workflow.</p>
       </header>
 
       <div className="insights">
         <article>
-          <strong>3</strong>
-          <span>Signals correlated</span>
+          <strong>4</strong>
+          <span>Apps correlated</span>
         </article>
         <article>
-          <strong>Low</strong>
-          <span>Risk level</span>
+          <strong>High</strong>
+          <span>Primary signal</span>
         </article>
         <article>
-          <strong>0 ms</strong>
-          <span>External API latency</span>
+          <strong>25%</strong>
+          <span>Safe rollout</span>
         </article>
+      </div>
+
+      <div className="signal-board" aria-label="Cross-platform signals">
+        {platformSignals.map((signal) => (
+          <article className={`signal-card ${signal.severity}`} key={`${signal.app}-${signal.label}`}>
+            <div>
+              <span>{signal.app}</span>
+              <strong>{signal.label}</strong>
+            </div>
+            <b>{signal.value}</b>
+            <p>{signal.detail}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="workflow-panel" aria-label="Recommended workflow">
+        <div>
+          <span>AI-native workflow</span>
+          <strong>Conversion Recovery Runbook</strong>
+        </div>
+        <ol>
+          {workflowSteps.map((step) => (
+            <li className={step.status} key={`${step.app}-${step.action}`}>
+              <span>{step.app}</span>
+              {step.action}
+            </li>
+          ))}
+        </ol>
       </div>
 
       <div className="mcp-panel" aria-label="MCPApps capabilities">
         <span>MCPApps SDK</span>
         <strong>assistant.summarizeCase</strong>
-        <p>Emits `mcp:tool-call-requested` and `mcp:tool-call-completed` on the shared event bus.</p>
+        <p>Emits shared events, answers inside the widget, and exposes the same capability as an MCP App tool.</p>
       </div>
 
       <div className="ai-runtime-grid" aria-label="AI runtime capabilities">
@@ -461,6 +576,14 @@ export function AiAssistantApp({ apiBaseUrl }: { apiBaseUrl?: string } = {}) {
             {message.runtime && <span className="runtime-badge">{formatAssistantRuntime(message.runtime)}</span>}
             {message.text}
           </p>
+        ))}
+      </div>
+
+      <div className="prompt-strip" aria-label="Demo prompts">
+        {demoPrompts.map((prompt) => (
+          <button type="button" key={prompt} onClick={() => setDraft(prompt)}>
+            {prompt}
+          </button>
         ))}
       </div>
 
