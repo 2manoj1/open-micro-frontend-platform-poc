@@ -2,6 +2,18 @@ import type { McpAppSandboxPermissions, MicroAppConfig } from './micro-app.js';
 import type { App, AppOptions } from '@modelcontextprotocol/ext-apps';
 
 export type McpJsonValue = null | boolean | number | string | McpJsonValue[] | { [key: string]: McpJsonValue };
+export type McpAppTextContent = { type: 'text'; text: string };
+export type McpAppContentBlock = McpAppTextContent | Record<string, unknown>;
+export type McpAppHostMessageParams = Parameters<App['sendMessage']>[0];
+export type McpAppModelContextParams = Parameters<App['updateModelContext']>[0];
+export type McpAppSamplingParams = Parameters<App['createSamplingMessage']>[0];
+export type McpAppToolCallParams = Parameters<App['callServerTool']>[0];
+export type McpAppResourceReadParams = Parameters<App['readServerResource']>[0];
+export type McpAppResourceListParams = NonNullable<Parameters<App['listServerResources']>[0]>;
+export type McpAppOpenLinkParams = Parameters<App['openLink']>[0];
+export type McpAppDownloadFileParams = Parameters<App['downloadFile']>[0];
+export type McpAppDisplayModeParams = Parameters<App['requestDisplayMode']>[0];
+export type McpAppSizeChangedParams = Parameters<App['sendSizeChanged']>[0];
 
 export interface McpJsonRpcRequest {
   jsonrpc: '2.0';
@@ -47,16 +59,41 @@ export interface OfficialMcpAppRuntimeOptions {
   capabilities?: Record<string, unknown>;
   timeoutMs?: number;
   appOptions?: AppOptions;
+  handlers?: OfficialMcpAppRuntimeHandlers;
 }
 
 export interface OfficialMcpAppRuntime {
   status: McpHostRuntimeStatus;
   app?: App;
   error?: Error;
+  getHostContext: () => unknown;
+  getHostCapabilities: () => unknown;
+  getHostInfo: () => unknown;
   requestHostCompletion: (prompt: string, systemPrompt?: string) => Promise<string>;
-  updateModelContext: (text: string) => Promise<void>;
+  createSamplingMessage: (params: McpAppSamplingParams) => Promise<unknown>;
+  sendHostMessage: (prompt: string, context?: string) => Promise<unknown>;
+  sendMessage: (params: McpAppHostMessageParams) => Promise<unknown>;
+  sendLog: (level: 'debug' | 'info' | 'notice' | 'warning' | 'error', data: unknown) => Promise<void>;
+  updateModelContext: (params: string | McpAppModelContextParams) => Promise<unknown>;
   callServerTool: (name: string, args?: Record<string, unknown>) => Promise<unknown>;
+  callServerToolWithParams: (params: McpAppToolCallParams) => Promise<unknown>;
+  readServerResource: (uriOrParams: string | McpAppResourceReadParams) => Promise<unknown>;
+  listServerResources: (params?: McpAppResourceListParams) => Promise<unknown>;
+  openLink: (urlOrParams: string | McpAppOpenLinkParams) => Promise<unknown>;
+  downloadFile: (params: McpAppDownloadFileParams) => Promise<unknown>;
+  requestDisplayMode: (modeOrParams: 'inline' | 'fullscreen' | 'pip' | McpAppDisplayModeParams) => Promise<unknown>;
+  requestTeardown: () => Promise<void>;
+  sendSizeChanged: (params: McpAppSizeChangedParams) => Promise<void>;
   dispose: () => Promise<void>;
+}
+
+export interface OfficialMcpAppRuntimeHandlers {
+  onToolInput?: (params: unknown) => void;
+  onToolInputPartial?: (params: unknown) => void;
+  onToolResult?: (params: unknown) => void;
+  onToolCancelled?: (params: unknown) => void;
+  onHostContextChanged?: (context: unknown) => void;
+  onTeardown?: () => void | Record<string, unknown> | Promise<void | Record<string, unknown>>;
 }
 
 export interface McpAppHtmlOptions {
@@ -222,12 +259,22 @@ export async function connectOfficialMcpAppRuntime(
         ...options.appOptions,
       }
     );
+    installOfficialMcpHandlers(app, options.handlers);
 
     await withTimeout(app.connect(), options.timeoutMs ?? 2_500, 'MCP Apps host connection timed out');
 
     return {
       status: 'connected',
       app,
+      getHostContext() {
+        return app.getHostContext();
+      },
+      getHostCapabilities() {
+        return app.getHostCapabilities();
+      },
+      getHostInfo() {
+        return app.getHostVersion();
+      },
       async requestHostCompletion(prompt, systemPrompt) {
         const result = await app.createSamplingMessage({
           messages: [
@@ -242,13 +289,50 @@ export async function connectOfficialMcpAppRuntime(
 
         return readTextContent(result.content);
       },
-      async updateModelContext(text) {
-        await app.updateModelContext({
-          content: [{ type: 'text', text }],
+      createSamplingMessage(params) {
+        return app.createSamplingMessage(params);
+      },
+      sendHostMessage(prompt, context) {
+        return app.sendMessage(createHostMessageParams(prompt, context));
+      },
+      sendMessage(params) {
+        return app.sendMessage(params);
+      },
+      async sendLog(level, data) {
+        await app.sendLog({
+          level,
+          data,
         });
+      },
+      updateModelContext(params) {
+        return app.updateModelContext(toModelContextParams(params));
       },
       callServerTool(name, args = {}) {
         return app.callServerTool({ name, arguments: args });
+      },
+      callServerToolWithParams(params) {
+        return app.callServerTool(params);
+      },
+      readServerResource(uriOrParams) {
+        return app.readServerResource(typeof uriOrParams === 'string' ? { uri: uriOrParams } : uriOrParams);
+      },
+      listServerResources(params) {
+        return app.listServerResources(params);
+      },
+      openLink(urlOrParams) {
+        return app.openLink(typeof urlOrParams === 'string' ? { url: urlOrParams } : urlOrParams);
+      },
+      downloadFile(params) {
+        return app.downloadFile(params);
+      },
+      requestDisplayMode(modeOrParams) {
+        return app.requestDisplayMode(typeof modeOrParams === 'string' ? { mode: modeOrParams } : modeOrParams);
+      },
+      requestTeardown() {
+        return app.requestTeardown();
+      },
+      sendSizeChanged(params) {
+        return app.sendSizeChanged(params);
       },
       async dispose() {
         await (app as unknown as { close?: () => Promise<void> }).close?.();
@@ -294,8 +378,29 @@ function createDisconnectedOfficialRuntime(status: McpHostRuntimeStatus, error?:
   return {
     status,
     error: error instanceof Error ? error : error ? new Error(String(error)) : undefined,
+    getHostContext() {
+      return undefined;
+    },
+    getHostCapabilities() {
+      return undefined;
+    },
+    getHostInfo() {
+      return undefined;
+    },
     requestHostCompletion() {
       return Promise.reject(new Error('No MCP Apps host model runtime is connected'));
+    },
+    createSamplingMessage() {
+      return Promise.reject(new Error('No MCP Apps host sampling runtime is connected'));
+    },
+    sendHostMessage() {
+      return Promise.reject(new Error('No MCP Apps host message runtime is connected'));
+    },
+    sendMessage() {
+      return Promise.reject(new Error('No MCP Apps host message runtime is connected'));
+    },
+    sendLog() {
+      return Promise.resolve();
     },
     updateModelContext() {
       return Promise.resolve();
@@ -303,10 +408,70 @@ function createDisconnectedOfficialRuntime(status: McpHostRuntimeStatus, error?:
     callServerTool() {
       return Promise.reject(new Error('No MCP Apps host tool bridge is connected'));
     },
+    callServerToolWithParams() {
+      return Promise.reject(new Error('No MCP Apps host tool bridge is connected'));
+    },
+    readServerResource() {
+      return Promise.reject(new Error('No MCP Apps host resource bridge is connected'));
+    },
+    listServerResources() {
+      return Promise.reject(new Error('No MCP Apps host resource bridge is connected'));
+    },
+    openLink() {
+      return Promise.reject(new Error('No MCP Apps host open-link bridge is connected'));
+    },
+    downloadFile() {
+      return Promise.reject(new Error('No MCP Apps host download bridge is connected'));
+    },
+    requestDisplayMode() {
+      return Promise.reject(new Error('No MCP Apps host display-mode bridge is connected'));
+    },
+    requestTeardown() {
+      return Promise.resolve();
+    },
+    sendSizeChanged() {
+      return Promise.resolve();
+    },
     dispose() {
       return Promise.resolve();
     },
   };
+}
+
+function createHostMessageParams(prompt: string, context?: string): McpAppHostMessageParams {
+  return {
+    role: 'user',
+    content: [
+      {
+        type: 'text',
+        text: context ? `${context}\n\n${prompt}` : prompt,
+      },
+    ],
+  };
+}
+
+function toModelContextParams(params: string | McpAppModelContextParams): McpAppModelContextParams {
+  if (typeof params !== 'string') return params;
+  return {
+    content: [
+      {
+        type: 'text',
+        text: params,
+      },
+    ],
+  };
+}
+
+function installOfficialMcpHandlers(app: App, handlers: OfficialMcpAppRuntimeHandlers = {}): void {
+  app.ontoolinput = handlers.onToolInput;
+  app.ontoolinputpartial = handlers.onToolInputPartial;
+  app.ontoolresult = handlers.onToolResult;
+  app.ontoolcancelled = handlers.onToolCancelled;
+  app.onhostcontextchanged = handlers.onHostContextChanged;
+
+  if (handlers.onTeardown) {
+    app.onteardown = async () => handlers.onTeardown?.() ?? {};
+  }
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {

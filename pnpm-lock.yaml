@@ -338,15 +338,12 @@ importers:
 
   tools/mcp-apps-server:
     dependencies:
-      '@openmf/core':
-        specifier: workspace:*
-        version: link:../../packages/platform-sdk
-      '@modelcontextprotocol/ext-apps':
-        specifier: 1.7.4
-        version: 1.7.4(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod@4.4.3)
       '@modelcontextprotocol/sdk':
         specifier: 1.29.0
         version: 1.29.0(zod@4.4.3)
+      '@openmf/core':
+        specifier: workspace:*
+        version: link:../../packages/platform-sdk
       zod:
         specifier: ^4.2.1
         version: 4.4.3

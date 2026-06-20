@@ -62,6 +62,10 @@
       "types": "./dist/mcp-app.d.ts",
       "import": "./dist/mcp-app.js"
     },
+    "./mcp-standard": {
+      "types": "./dist/mcp-standard.d.ts",
+      "import": "./dist/mcp-standard.js"
+    },
     "./micro-app": {
       "types": "./dist/micro-app.d.ts",
       "import": "./dist/micro-app.js"

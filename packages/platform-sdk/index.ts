@@ -1,6 +1,7 @@
 export * from './event-bus.js';
 export * from './html-fragment.js';
 export * from './mcp-app.js';
+export * from './mcp-standard.js';
 export * from './micro-app.js';
 export * from './next.js';
 export * from './observability.js';

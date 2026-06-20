@@ -10,9 +10,8 @@
     "lint": "node --check src/server.mjs"
   },
   "dependencies": {
-    "@openmf/core": "workspace:*",
-    "@modelcontextprotocol/ext-apps": "1.7.4",
     "@modelcontextprotocol/sdk": "1.29.0",
+    "@openmf/core": "workspace:*",
     "zod": "^4.2.1"
   }
 }

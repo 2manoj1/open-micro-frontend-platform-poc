@@ -5,9 +5,9 @@ import { AiAssistantApp } from './AiAssistantApp';
 import './app.css';
 
 const MicroAiAssistantApp = defineMicroAppElement('micro-ai-assistant-app', {
-  mount(host) {
+  mount(host, context) {
     const root = ReactDOM.createRoot(host);
-    root.render(<AiAssistantApp />);
+    root.render(<AiAssistantApp apiBaseUrl={context.shellOrigin} />);
     return () => root.unmount();
   },
 });

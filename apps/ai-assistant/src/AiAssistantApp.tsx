@@ -12,12 +12,27 @@ import {
 interface Message {
   role: 'assistant' | 'user';
   text: string;
+  runtime?: AssistantRuntime;
 }
 
 type BuiltInAiStatus = 'checking' | 'available' | 'downloadable' | 'downloading' | 'unavailable' | 'unsupported';
 type HostAiStatus = 'checking' | 'connected' | 'standalone' | 'unavailable';
 type OpenAiHostStatus = 'checking' | 'connected' | 'unavailable';
+type ApiChatStatus = 'idle' | 'available' | 'unavailable';
 type OpenAiGlobalsEvent = Event & { detail?: { openai?: OpenAiWidgetBridge } };
+type AssistantRuntime =
+  | 'ai-native-mcp-tool'
+  | 'ai-native-host-model'
+  | 'ai-native-host-message'
+  | 'chrome-built-in-ai'
+  | 'server-api-chat'
+  | 'deterministic-fallback';
+
+interface AssistantResponse {
+  text: string;
+  runtime: AssistantRuntime;
+  provider?: string;
+}
 
 interface ChromeLanguageModelSession {
   prompt: (input: string) => Promise<string>;
@@ -30,7 +45,6 @@ interface ChromeLanguageModel {
 }
 
 interface OpenAiWidgetBridge {
-  callTool?: (name: string, args?: Record<string, unknown>) => Promise<unknown>;
   sendFollowUpMessage?: (params: { prompt: string; scrollToBottom?: boolean }) => Promise<unknown>;
   setWidgetState?: (state: Record<string, unknown>) => void;
 }
@@ -39,13 +53,22 @@ declare global {
   interface Window {
     LanguageModel?: ChromeLanguageModel;
     openai?: OpenAiWidgetBridge;
+    __MICRO_APP_CONTEXT__?: {
+      shellOrigin?: string;
+      resourceOrigin?: string;
+    };
   }
 }
 
-const fallbackAnalysis =
-  'Draft analysis: billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, and the admin flag billing-autopay is disabled. Recommended action: enable a 25% rollout and notify account owners.';
+const platformContext =
+  'Billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, admin has billing-autopay disabled, and customer health shows two enterprise accounts at renewal risk.';
 
-export function AiAssistantApp() {
+const fallbackAnalysis = [
+  'Cross-app analysis: billing has 1 overdue enterprise invoice, analytics reports a 2% conversion dip, and the admin flag billing-autopay is disabled.',
+  'Recommended action: enable a guarded 25% rollout for billing-autopay, notify account owners, and ask analytics to watch checkout recovery for 24 hours.',
+].join(' ');
+
+export function AiAssistantApp({ apiBaseUrl }: { apiBaseUrl?: string } = {}) {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', text: 'I can summarize app health, explain events, and suggest next actions across the platform.' },
   ]);
@@ -53,9 +76,16 @@ export function AiAssistantApp() {
   const [builtInAiStatus, setBuiltInAiStatus] = useState<BuiltInAiStatus>('checking');
   const [hostAiStatus, setHostAiStatus] = useState<HostAiStatus>('checking');
   const [openAiHostStatus, setOpenAiHostStatus] = useState<OpenAiHostStatus>('checking');
+  const [apiChatStatus, setApiChatStatus] = useState<ApiChatStatus>('idle');
+  const [lastRuntime, setLastRuntime] = useState<AssistantRuntime>('deterministic-fallback');
   const [webMcpSupported, setWebMcpSupported] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const officialMcpRuntimeRef = useRef<OfficialMcpAppRuntime>();
+  const lastRuntimeRef = useRef(lastRuntime);
+
+  useEffect(() => {
+    lastRuntimeRef.current = lastRuntime;
+  }, [lastRuntime]);
 
   useEffect(() => {
     const bridge = initializeMcpAppBridge({ source: 'ai-assistant' });
@@ -71,7 +101,7 @@ export function AiAssistantApp() {
     let disposed = false;
     const syncStatus = () => {
       if (disposed) return;
-      setOpenAiHostStatus(window.openai?.callTool ? 'connected' : 'unavailable');
+      setOpenAiHostStatus(window.openai?.sendFollowUpMessage ? 'connected' : 'unavailable');
     };
     const interval = window.setInterval(syncStatus, 250);
 
@@ -95,6 +125,37 @@ export function AiAssistantApp() {
         sampling: {},
         serverTools: {},
         modelContext: {},
+      },
+      handlers: {
+        onToolInput() {
+          if (!disposed) setHostAiStatus('connected');
+        },
+        onToolInputPartial() {
+          if (!disposed) setHostAiStatus('connected');
+        },
+        onToolResult(result) {
+          if (disposed) return;
+          setHostAiStatus('connected');
+          const text = readToolText(result);
+      if (!text || text.includes('ready as an MCP App')) return;
+      setLastRuntime('ai-native-mcp-tool');
+        },
+        onToolCancelled() {
+          if (!disposed) setHostAiStatus('unavailable');
+        },
+        onHostContextChanged() {
+          if (!disposed) setHostAiStatus('connected');
+        },
+        onTeardown() {
+          emitMcpAppEvent('MCP_RESOURCE_REQUESTED', 'ai-assistant', {
+            lifecycle: 'teardown',
+            runtime: 'mcp-apps',
+          });
+          return {
+            appId: 'ai-assistant',
+            latestRuntime: lastRuntimeRef.current,
+          };
+        },
       },
     }).then((runtime) => {
       if (disposed) {
@@ -199,71 +260,132 @@ export function AiAssistantApp() {
       updatedAt: new Date().toISOString(),
     });
 
-    const assistantResponse = await generateAssistantResponse(prompt);
+    try {
+      const assistantResponse = await generateAssistantResponse(prompt, apiBaseUrl);
+      setLastRuntime(assistantResponse.runtime);
 
-    setMessages((current) => [
-      ...current,
-      { role: 'user', text: prompt },
-      { role: 'assistant', text: assistantResponse },
-    ]);
-    emitMcpAppEvent('MCP_TOOL_CALL_COMPLETED', 'ai-assistant', {
-      tool: 'assistant.summarizeCase',
-      resources: ['billing.invoice', 'analytics.funnel', 'admin.tenant'],
-      runtime: hostAiStatus === 'connected' ? 'mcp-host-model' : builtInAiStatus === 'available' ? 'chrome-built-in-ai' : 'deterministic-fallback',
-    });
-    setDraft('');
-    setIsThinking(false);
+      setMessages((current) => [
+        ...current,
+        { role: 'user', text: prompt },
+        { role: 'assistant', text: assistantResponse.text, runtime: assistantResponse.runtime },
+      ]);
+      emitMcpAppEvent('MCP_TOOL_CALL_COMPLETED', 'ai-assistant', {
+        tool: 'assistant.summarizeCase',
+        resources: ['billing.invoice', 'analytics.funnel', 'admin.tenant'],
+        runtime: assistantResponse.runtime,
+        provider: assistantResponse.provider,
+      });
+      setDraft('');
+    } catch (error) {
+      const text = withRuntimeLabel('Deterministic fallback', fallbackAnalysis);
+      setLastRuntime('deterministic-fallback');
+      setMessages((current) => [
+        ...current,
+        { role: 'user', text: prompt },
+        { role: 'assistant', text, runtime: 'deterministic-fallback' },
+      ]);
+      emitMcpAppEvent('MCP_TOOL_CALL_FAILED', 'ai-assistant', {
+        tool: 'assistant.summarizeCase',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setIsThinking(false);
+    }
   }
 
-  async function generateAssistantResponse(prompt: string): Promise<string> {
-    const openAiToolResult = await callOpenAiHostTool(prompt);
-    if (openAiToolResult) return openAiToolResult;
-
+  async function generateAssistantResponse(prompt: string, configuredApiBaseUrl?: string): Promise<AssistantResponse> {
     const hostRuntime = officialMcpRuntimeRef.current;
     if (hostRuntime?.status === 'connected') {
       try {
-        await hostRuntime.updateModelContext(
-          'Open Micro Platform context: Billing has one overdue enterprise invoice, analytics reports a 2% conversion dip, and the admin flag billing-autopay is disabled.'
-        );
+        await hostRuntime.updateModelContext(`Open Micro Platform context: ${platformContext}`);
+        await hostRuntime.sendLog('info', {
+          appId: 'ai-assistant',
+          action: 'ask',
+          runtime: 'ai-native-host-model',
+        });
 
         const response = await hostRuntime.requestHostCompletion(
           [
             'Answer this as the Open Micro Platform AI Assistant.',
             'Be concise, operational, and use the known cross-app context.',
+            `Known platform context: ${platformContext}`,
             `User question: ${prompt}`,
           ].join('\n'),
           'You are running inside an MCP Apps widget. Use the AI host model to answer from the provided platform context.'
         );
 
-        if (response.trim()) return response.trim();
+        if (response.trim()) {
+          return {
+            text: withRuntimeLabel('AI Native host model', response.trim()),
+            runtime: 'ai-native-host-model',
+          };
+        }
       } catch {
-        // Fall through to browser-native and deterministic runtimes.
+        // Some hosts render the app before exposing sampling. Try host-mediated tool calls next.
+      }
+
+      try {
+        await hostRuntime.updateModelContext(`Open Micro Platform context: ${platformContext}`);
+        const result = await hostRuntime.sendHostMessage(
+          [
+            'Answer this as the Open Micro Platform AI Assistant.',
+            'Use the platform context already shared by the widget.',
+            `User question: ${prompt}`,
+          ].join('\n')
+        );
+
+        if (!isHostMessageRejected(result)) {
+          return {
+            text: withRuntimeLabel(
+              'AI Native host message',
+              'I sent this Ask to the AI-native host conversation with the current platform context. The host model response should appear in the chat thread, and the widget kept the same state for follow-up actions.'
+            ),
+            runtime: 'ai-native-host-message',
+          };
+        }
+      } catch {
+        // Fall through to browser-native and server API runtimes when the host rejects ui/message.
       }
     }
 
-    if (builtInAiStatus !== 'available' || !window.LanguageModel) {
-      return [
-        'AI host runtime was not available to this widget, so I could not call the host model directly.',
-        fallbackAnalysis,
-      ].join(' ');
+    const legacyOpenAiMessageResult = await sendLegacyOpenAiHostMessage(prompt);
+    if (legacyOpenAiMessageResult) return legacyOpenAiMessageResult;
+
+    if (builtInAiStatus === 'available' && window.LanguageModel) {
+      let session: ChromeLanguageModelSession | undefined;
+      try {
+        session = await window.LanguageModel.create();
+        const response = await session.prompt(
+          [
+            'You are the Open Micro Platform AI Assistant.',
+            'Answer as a concise platform operator.',
+            `Use this known context: ${platformContext}`,
+            `User question: ${prompt}`,
+          ].join('\n')
+        );
+        return {
+          text: withRuntimeLabel('Chrome Built-in AI', response),
+          runtime: 'chrome-built-in-ai',
+        };
+      } catch {
+        // Fall through to server API runtime.
+      } finally {
+        session?.destroy?.();
+      }
     }
 
-    let session: ChromeLanguageModelSession | undefined;
-    try {
-      session = await window.LanguageModel.create();
-      return await session.prompt(
-        [
-          'You are the Open Micro Platform AI Assistant.',
-          'Answer as a concise platform operator.',
-          'Use this known context: Billing has one overdue enterprise invoice, analytics reports a 2% conversion dip, and the admin flag billing-autopay is disabled.',
-          `User question: ${prompt}`,
-        ].join('\n')
-      );
-    } catch {
-      return fallbackAnalysis;
-    } finally {
-      session?.destroy?.();
+    setApiChatStatus('idle');
+    const apiResult = await callServerApiChat(prompt, configuredApiBaseUrl);
+    if (apiResult) {
+      setApiChatStatus('available');
+      return apiResult;
     }
+    setApiChatStatus('unavailable');
+
+    return {
+      text: withRuntimeLabel('Deterministic fallback', fallbackAnalysis),
+      runtime: 'deterministic-fallback',
+    };
   }
 
   return (
@@ -297,14 +419,14 @@ export function AiAssistantApp() {
 
       <div className="ai-runtime-grid" aria-label="AI runtime capabilities">
         <article>
-          <span>ChatGPT Apps bridge</span>
+          <span>Legacy ChatGPT bridge</span>
           <strong>{formatOpenAiHostStatus(openAiHostStatus)}</strong>
-          <p>When ChatGPT exposes `window.openai`, Ask calls the MCP tool through the host and renders the returned tool data.</p>
+          <p>Only used when a host exposes the older `window.openai` message API instead of the MCP Apps `ui/message` runtime.</p>
         </article>
         <article>
           <span>MCP host AI</span>
           <strong>{formatHostAiStatus(hostAiStatus)}</strong>
-          <p>When rendered inside ChatGPT, Claude, or another MCP Apps host, asks the host model before local browser fallback.</p>
+          <p>When rendered inside Claude, ChatGPT, or another MCP Apps host, asks the host model or sends a host conversation message before local browser fallback.</p>
         </article>
         <article>
           <span>Chrome built-in AI</span>
@@ -321,11 +443,24 @@ export function AiAssistantApp() {
           <strong>HTML resource ready</strong>
           <p>This same micro app can render through `/api/mcp/apps/ai-assistant/resource` in an AI host iframe.</p>
         </article>
+        <article>
+          <span>Server API chat</span>
+          <strong>{formatApiChatStatus(apiChatStatus)}</strong>
+          <p>When host and browser AI are unavailable, Ask calls the shell or MCP server chat API and still returns an operational answer.</p>
+        </article>
+        <article>
+          <span>Last response</span>
+          <strong>{formatAssistantRuntime(lastRuntime)}</strong>
+          <p>Shows which runtime handled the latest user question across AI-native, browser-native, and server paths.</p>
+        </article>
       </div>
 
       <div className="thread">
         {messages.map((message, index) => (
-          <p className={message.role} key={`${message.role}-${index}`}>{message.text}</p>
+          <p className={message.role} key={`${message.role}-${index}`}>
+            {message.runtime && <span className="runtime-badge">{formatAssistantRuntime(message.runtime)}</span>}
+            {message.text}
+          </p>
         ))}
       </div>
 
@@ -337,27 +472,75 @@ export function AiAssistantApp() {
   );
 }
 
-async function callOpenAiHostTool(prompt: string): Promise<string | undefined> {
+async function sendLegacyOpenAiHostMessage(prompt: string): Promise<AssistantResponse | undefined> {
   const bridge = await waitForOpenAiBridge();
-  if (!bridge?.callTool) return undefined;
+  if (!bridge?.sendFollowUpMessage) return undefined;
 
   try {
-    const result = await bridge.callTool('assistant_summarizeCase', { prompt });
-    const text = readToolText(result);
-    if (text) return text;
-
-    await bridge.sendFollowUpMessage?.({
+    await bridge.sendFollowUpMessage({
       prompt: `Answer inside the conversation using the AI Assistant context: ${prompt}`,
       scrollToBottom: true,
     });
-    return 'I sent this question to the ChatGPT host conversation. The host response will appear in the chat thread.';
+    return {
+      text: withRuntimeLabel(
+        'Legacy ChatGPT bridge',
+        'I sent this question to the ChatGPT host conversation. The host response will appear in the chat thread.'
+      ),
+      runtime: 'ai-native-host-message',
+    };
   } catch {
     return undefined;
   }
 }
 
+async function callServerApiChat(prompt: string, configuredApiBaseUrl?: string): Promise<AssistantResponse | undefined> {
+  const endpoint = resolveApiChatEndpoint(configuredApiBaseUrl);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        context: platformContext,
+        appId: 'ai-assistant',
+      }),
+    });
+
+    if (!response.ok) return undefined;
+
+    const payload = await response.json() as {
+      text?: string;
+      runtime?: AssistantRuntime;
+      provider?: string;
+    };
+
+    if (!payload.text) return undefined;
+
+    return {
+      text: withRuntimeLabel(payload.provider ? `Server API chat (${payload.provider})` : 'Server API chat', payload.text),
+      runtime: payload.runtime ?? 'server-api-chat',
+      provider: payload.provider,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveApiChatEndpoint(configuredApiBaseUrl?: string): string {
+  const contextOrigin = window.__MICRO_APP_CONTEXT__?.resourceOrigin ?? window.__MICRO_APP_CONTEXT__?.shellOrigin;
+  const baseUrl = configuredApiBaseUrl ?? contextOrigin ?? window.location.origin;
+  return new URL('/api/ai-assistant/chat', baseUrl).toString();
+}
+
+function withRuntimeLabel(label: string, text: string): string {
+  return `[${label}] ${text}`;
+}
+
 async function waitForOpenAiBridge(timeoutMs = 1_500): Promise<OpenAiWidgetBridge | undefined> {
-  if (window.openai?.callTool) return window.openai;
+  if (window.openai?.sendFollowUpMessage) return window.openai;
 
   return new Promise((resolve) => {
     const deadline = Date.now() + timeoutMs;
@@ -371,7 +554,7 @@ async function waitForOpenAiBridge(timeoutMs = 1_500): Promise<OpenAiWidgetBridg
     };
 
     const finish = () => {
-      const bridge = window.openai?.callTool ? window.openai : undefined;
+      const bridge = window.openai?.sendFollowUpMessage ? window.openai : undefined;
       if (!bridge && Date.now() < deadline) return;
       cleanup();
       resolve(bridge);
@@ -379,7 +562,7 @@ async function waitForOpenAiBridge(timeoutMs = 1_500): Promise<OpenAiWidgetBridg
 
     const handleOpenAiGlobals = (event: Event) => {
       const bridge = (event as OpenAiGlobalsEvent).detail?.openai;
-      if (bridge?.callTool && !window.openai) {
+      if (bridge?.sendFollowUpMessage && !window.openai) {
         window.openai = bridge;
       }
       finish();
@@ -413,10 +596,14 @@ function readToolText(value: unknown): string | undefined {
   return undefined;
 }
 
+function isHostMessageRejected(value: unknown): boolean {
+  return Boolean(value && typeof value === 'object' && (value as { isError?: unknown }).isError === true);
+}
+
 function formatOpenAiHostStatus(status: OpenAiHostStatus): string {
   const labels: Record<OpenAiHostStatus, string> = {
     checking: 'Checking',
-    connected: 'Host tool bridge connected',
+    connected: 'Legacy bridge connected',
     unavailable: 'Not exposed',
   };
 
@@ -432,6 +619,29 @@ function formatHostAiStatus(status: HostAiStatus): string {
   };
 
   return labels[status];
+}
+
+function formatApiChatStatus(status: ApiChatStatus): string {
+  const labels: Record<ApiChatStatus, string> = {
+    idle: 'Ready on demand',
+    available: 'API answered',
+    unavailable: 'Unavailable',
+  };
+
+  return labels[status];
+}
+
+function formatAssistantRuntime(runtime: AssistantRuntime): string {
+  const labels: Record<AssistantRuntime, string> = {
+    'ai-native-mcp-tool': 'AI Native MCP tool',
+    'ai-native-host-model': 'AI Native host model',
+    'ai-native-host-message': 'AI Native host message',
+    'chrome-built-in-ai': 'Chrome Built-in AI',
+    'server-api-chat': 'Server API chat',
+    'deterministic-fallback': 'Deterministic fallback',
+  };
+
+  return labels[runtime];
 }
 
 function formatBuiltInAiStatus(status: BuiltInAiStatus): string {

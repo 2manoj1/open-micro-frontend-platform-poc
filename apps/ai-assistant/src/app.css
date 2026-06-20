@@ -146,6 +146,20 @@
   border: 1px solid var(--app-border);
 }
 
+.runtime-badge {
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  border-radius: 999px;
+  color: #0e7490;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  margin: 0 8px 6px 0;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
 .thread .user {
   background: var(--app-accent);
   color: #fff;

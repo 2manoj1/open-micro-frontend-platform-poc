@@ -14,6 +14,9 @@ ingress:
   - hostname: ai-assistant.manojmukherjee.co.in
     path: /mcp
     service: http://127.0.0.1:8787
+  - hostname: ai-assistant.manojmukherjee.co.in
+    path: /api/ai-assistant/chat
+    service: http://127.0.0.1:8787
   - hostname: customer.manojmukherjee.co.in
     path: /mcp
     service: http://127.0.0.1:8787

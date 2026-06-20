@@ -34,6 +34,7 @@ The root import re-exports the stable SDK modules:
 
 ```ts
 import { mountMicroApp, createMcpAppResourceDescriptor } from '@openmf/core'
+import { App, registerAppTool } from '@openmf/core/mcp-standard'
 ```
 
 ## Micro App Contract
@@ -95,6 +96,22 @@ The registry validates required manifest fields, runtime configuration, duplicat
 
 ## MCP Apps
 
+OpenMF wraps the official MCP Apps SDK instead of replacing it. Use `@openmf/core/mcp-standard` when you need direct access to the standard API surface:
+
+```ts
+import {
+  App,
+  AppBridge,
+  PostMessageTransport,
+  RESOURCE_MIME_TYPE,
+  getUiCapability,
+  registerAppResource,
+  registerAppTool,
+} from '@openmf/core/mcp-standard'
+```
+
+That module re-exports the framework-neutral View APIs, Host bridge APIs, Server helpers, schemas, constants, and host style helpers from `@modelcontextprotocol/ext-apps`. The higher-level OpenMF runtime below is a convenience layer for micro apps that want common defaults.
+
 ```ts
 import { connectOfficialMcpAppRuntime } from '@openmf/core/client'
 
@@ -106,14 +123,31 @@ const runtime = await connectOfficialMcpAppRuntime({
     serverTools: {},
     modelContext: {},
   },
+  handlers: {
+    onToolInput(input) {
+      console.log('Host started the tool call', input)
+    },
+    onToolResult(result) {
+      console.log('Host returned tool data', result)
+    },
+    onHostContextChanged(context) {
+      console.log('Theme, locale, display mode, or tool context changed', context)
+    },
+  },
 })
 
 if (runtime.status === 'connected') {
   await runtime.updateModelContext('Visible tenant has two overdue invoices.')
   const answer = await runtime.requestHostCompletion('Summarize the risk.')
-  await runtime.callServerTool('orders_summarize', { tenantId: 'acme' })
+  await runtime.sendHostMessage('Add this risk summary to the chat thread.')
+  await runtime.callServerTool('orders_refreshVisibleRows', { tenantId: 'acme' })
+  await runtime.readServerResource('orders://tenant/acme')
+  await runtime.openLink('https://docs.example.com/orders')
+  await runtime.requestDisplayMode('fullscreen')
 }
 ```
+
+Register lifecycle handlers before `connect()` is called. `connectOfficialMcpAppRuntime()` does that for you when handlers are passed in options, which prevents hosts from hiding the iframe while waiting on one-shot tool input/result notifications. A good app runtime order is: host sampling when the widget needs the AI answer back in UI, `sendHostMessage()` when the user expects the AI-native chat thread to answer, browser AI when available, and a server API fallback for every other environment. Use `callServerTool()` for structured app data/actions, not as the primary Ask-to-LLM path.
 
 Shells can expose the same app as an MCP Apps HTML resource:
 
