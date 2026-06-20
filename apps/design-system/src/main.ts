@@ -1,5 +1,5 @@
 import { designSystemContract } from '@micro-frontend/design-system';
-import { defineMicroAppElement, emitMicroAppEvent } from '@micro-frontend/platform-sdk/client';
+import { defineMicroAppElement, emitMicroAppEvent } from '@openmf/core/client';
 import './app.css';
 
 const tagName = 'micro-design-system-app';

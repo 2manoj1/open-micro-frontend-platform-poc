@@ -6,7 +6,7 @@ import {
   registerAppResource,
   registerAppTool,
 } from '@modelcontextprotocol/ext-apps/server';
-import { createMcpAppHtml } from '@micro-frontend/platform-sdk/mcp-app';
+import { createMcpAppHtml } from '@openmf/core/mcp-app';
 import { z } from 'zod';
 
 const PORT = Number(process.env.PORT ?? process.env.MCP_APPS_SERVER_PORT ?? 8787);

@@ -14,7 +14,7 @@ import {
   type MountedMicroApp,
   type PlatformLogEntry,
   waitForMicroAppReady,
-} from '@micro-frontend/platform-sdk';
+} from '@openmf/core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 

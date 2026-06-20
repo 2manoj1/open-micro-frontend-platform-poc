@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@micro-frontend/design-system": "workspace:*",
-    "@micro-frontend/platform-sdk": "workspace:*"
+    "@openmf/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "6.0.3",

@@ -4,7 +4,7 @@ The SDK is structurally ready to publish, but treat the first public release as 
 
 ## Current Package
 
-- Package: `@micro-frontend/platform-sdk`
+- Package: `@openmf/core`
 - Source: `packages/platform-sdk`
 - Output: `dist`
 - Format: ESM
@@ -15,13 +15,22 @@ The SDK is structurally ready to publish, but treat the first public release as 
 
 1. Choose the final package name and npm scope.
 2. Confirm `author`, `repository`, `bugs`, and `homepage` in `packages/platform-sdk/package.json`.
-3. Add CI for `pnpm lint`, `pnpm build`, and `pnpm --filter @micro-frontend/platform-sdk pack --dry-run`.
+3. Add CI for `pnpm lint`, `pnpm build`, and `pnpm --filter @openmf/core pack --dry-run`.
 4. Add unit tests for registry resolution, event bus behavior, and error reporting.
 5. Add browser integration tests for Web Component, ESM module, HTML fragment, and iframe remotes.
 6. Add security documentation for allowed origins, CSP, trusted HTML fragments, and signed manifests.
 7. Decide whether `0.x` APIs are experimental or semver-stable.
-8. Run `pnpm --filter @micro-frontend/platform-sdk pack --dry-run`.
-9. Run `pnpm --filter @micro-frontend/platform-sdk publish --access public`.
+8. Run `pnpm --filter @openmf/core validate`.
+9. Run `pnpm --filter @openmf/core publish --access public`.
+10. For CI releases, prefer npm trusted publishing or `npm publish --provenance` after the package scope is configured.
+
+## Local Validation
+
+```bash
+pnpm --filter @openmf/core validate
+```
+
+This type-checks the SDK, builds `dist`, and runs `pnpm pack --dry-run` with the package `prepack` hook.
 
 ## Suggested Release Channels
 

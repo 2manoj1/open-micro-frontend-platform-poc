@@ -46,7 +46,7 @@ importers:
 
   apps/admin:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       react:
@@ -74,7 +74,7 @@ importers:
 
   apps/ai-assistant:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       react:
@@ -102,7 +102,7 @@ importers:
 
   apps/analytics:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       react:
@@ -148,7 +148,7 @@ importers:
       '@angular/platform-browser':
         specifier: 22.0.2
         version: 22.0.2(@angular/animations@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.16.2)))(@angular/common@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.16.2))(rxjs@7.8.2))(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.16.2))
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       rxjs:
@@ -179,7 +179,7 @@ importers:
 
   apps/billing:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       react:
@@ -207,7 +207,7 @@ importers:
 
   apps/customer:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       react:
@@ -238,7 +238,7 @@ importers:
       '@micro-frontend/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
     devDependencies:
@@ -254,7 +254,7 @@ importers:
       '@micro-frontend/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       clsx:
@@ -300,7 +300,7 @@ importers:
 
   apps/vue-commerce:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       vue:
@@ -338,7 +338,7 @@ importers:
 
   tools/mcp-apps-server:
     dependencies:
-      '@micro-frontend/platform-sdk':
+      '@openmf/core':
         specifier: workspace:*
         version: link:../../packages/platform-sdk
       '@modelcontextprotocol/ext-apps':

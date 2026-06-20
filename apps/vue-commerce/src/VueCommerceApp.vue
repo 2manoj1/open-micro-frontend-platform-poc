@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { emitMicroAppEvent } from '@micro-frontend/platform-sdk/client';
+import { emitMicroAppEvent } from '@openmf/core/client';
 
 const segments = [
   { label: 'Enterprise', revenue: 184200, orders: 126, health: 96 },

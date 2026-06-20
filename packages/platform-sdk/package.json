@@ -1,5 +1,5 @@
 {
-  "name": "@micro-frontend/platform-sdk",
+  "name": "@openmf/core",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -16,71 +16,88 @@
     "module-federation-alternative",
     "frontend-platform"
   ],
-  "author": "",
+  "author": "Manoj Mukherjee",
   "license": "MIT",
+  "homepage": "https://github.com/2manoj1/open-micro-frontend-platform-poc#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2manoj1/open-micro-frontend-platform-poc.git",
+    "directory": "packages/platform-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/2manoj1/open-micro-frontend-platform-poc/issues"
+  },
   "sideEffects": false,
   "files": [
     "dist",
+    "LICENSE",
     "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "lint": "tsc -p tsconfig.json --noEmit"
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "pack:dry": "pnpm pack --dry-run",
+    "prepack": "pnpm run clean && pnpm run build && pnpm run lint",
+    "validate": "pnpm run lint && pnpm run build && pnpm run pack:dry"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
     },
     "./client": {
       "types": "./dist/client.d.ts",
-      "default": "./dist/client.js"
+      "import": "./dist/client.js"
     },
     "./event-bus": {
       "types": "./dist/event-bus.d.ts",
-      "default": "./dist/event-bus.js"
+      "import": "./dist/event-bus.js"
     },
     "./html-fragment": {
       "types": "./dist/html-fragment.d.ts",
-      "default": "./dist/html-fragment.js"
+      "import": "./dist/html-fragment.js"
     },
     "./mcp-app": {
       "types": "./dist/mcp-app.d.ts",
-      "default": "./dist/mcp-app.js"
+      "import": "./dist/mcp-app.js"
     },
     "./micro-app": {
       "types": "./dist/micro-app.d.ts",
-      "default": "./dist/micro-app.js"
+      "import": "./dist/micro-app.js"
     },
     "./observability": {
       "types": "./dist/observability.d.ts",
-      "default": "./dist/observability.js"
+      "import": "./dist/observability.js"
     },
     "./next": {
       "types": "./dist/next.d.ts",
-      "default": "./dist/next.js"
+      "import": "./dist/next.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",
-      "default": "./dist/registry.js"
+      "import": "./dist/registry.js"
     },
     "./runtime-state": {
       "types": "./dist/runtime-state.d.ts",
-      "default": "./dist/runtime-state.js"
+      "import": "./dist/runtime-state.js"
     },
     "./shell": {
       "types": "./dist/shell.d.ts",
-      "default": "./dist/shell.js"
+      "import": "./dist/shell.js"
     },
     "./web-mcp": {
       "types": "./dist/web-mcp.d.ts",
-      "default": "./dist/web-mcp.js"
-    }
+      "import": "./dist/web-mcp.js"
+    },
+    "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "publishConfig": {
     "access": "public"
   },

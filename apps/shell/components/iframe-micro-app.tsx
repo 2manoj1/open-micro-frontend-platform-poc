@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import type { MicroAppConfig } from '@micro-frontend/platform-sdk';
+import type { MicroAppConfig } from '@openmf/core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MicroAppIslandFallback } from '@/components/micro-app-island';
 

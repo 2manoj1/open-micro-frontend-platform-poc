@@ -91,7 +91,7 @@ The root `vercel.json` builds the SDK and the shell:
 
 ```json
 {
-  "buildCommand": "pnpm --filter @micro-frontend/platform-sdk build && pnpm --filter @micro-frontend/shell build",
+  "buildCommand": "pnpm --filter @openmf/core build && pnpm --filter @micro-frontend/shell build",
   "outputDirectory": "apps/shell/.next"
 }
 ```

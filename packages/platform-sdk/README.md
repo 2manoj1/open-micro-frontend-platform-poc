@@ -1,33 +1,45 @@
-# @micro-frontend/platform-sdk
+# @openmf/core
 
-Framework-neutral runtime SDK for self-deployable micro apps.
+Framework-neutral SDK for manifest-driven, self-deployable, AI-native micro frontends without webpack Module Federation.
 
-This SDK is designed for shell teams and app teams that want micro frontends without webpack Module Federation as a required runtime. Apps are discovered through manifests and mounted through browser-native or URL-based contracts.
+The SDK gives shell teams and app teams a small standards-first contract:
 
-## Supported Runtime Contracts
+- Web Components for React, Vue, Angular, Lit, Stencil, or plain Custom Elements.
+- ESM remotes with `mount(container, context)`.
+- HTML fragments for static, SSR, SSG, ISR, and RSC-compatible shell rendering.
+- iframe isolation for full-document remotes.
+- Async event bus, runtime state, error reporting, and no-white-screen loading states.
+- MCP Apps and WebMCP adapters so the same app can run in a web shell, standalone, PWA, or AI-native host.
 
-- Web Component: React, Vue, Angular Elements, Lit, Stencil, or plain Custom Elements.
-- ESM module: export `mount(container, context)`.
-- HTML fragment: static, SSR, SSG, ISR, or RSC-compatible shell rendering.
-- iframe: full-document isolation for separately hosted apps.
+## Install
+
+```bash
+npm install @openmf/core
+```
+
+This package is ESM-first and ships TypeScript declarations for every subpath export.
 
 ## Entry Points
 
 ```ts
-import { mountMicroApp } from '@micro-frontend/platform-sdk/shell'
-import { defineMicroAppElement } from '@micro-frontend/platform-sdk/client'
-import { createMicroAppRegistry } from '@micro-frontend/platform-sdk/registry'
-import { createMicroAppRuntimeState, waitForMicroAppReady } from '@micro-frontend/platform-sdk/runtime-state'
-import { eventBus, PlatformEvents } from '@micro-frontend/platform-sdk/event-bus'
-import { createMcpAppBridge, createMcpAppHtml } from '@micro-frontend/platform-sdk/mcp-app'
-import { registerWebMcpTool } from '@micro-frontend/platform-sdk/web-mcp'
-import { reportMicroAppError } from '@micro-frontend/platform-sdk/observability'
+import { createMicroAppRegistry } from '@openmf/core/registry'
+import { mountMicroApp } from '@openmf/core/shell'
+import { defineMicroAppElement } from '@openmf/core/client'
+import { createMcpAppHtml } from '@openmf/core/mcp-app'
+import { createMicroAppRuntimeState, waitForMicroAppReady } from '@openmf/core/runtime-state'
+import { eventBus, PlatformEvents } from '@openmf/core/event-bus'
 ```
 
-## Micro App Example
+The root import re-exports the stable SDK modules:
 
 ```ts
-import { defineMicroAppElement, emitMcpAppEvent } from '@micro-frontend/platform-sdk/client'
+import { mountMicroApp, createMcpAppResourceDescriptor } from '@openmf/core'
+```
+
+## Micro App Contract
+
+```ts
+import { defineMicroAppElement, emitMcpAppEvent } from '@openmf/core/client'
 
 defineMicroAppElement('micro-orders-app', {
   mount(host, context) {
@@ -37,19 +49,20 @@ defineMicroAppElement('micro-orders-app', {
       tool: 'orders.search',
     })
 
-    return () => {
-      host.replaceChildren()
-    }
+    return () => host.replaceChildren()
   },
 })
 ```
 
-## Shell Example
+Any framework can own the implementation behind the custom element. The shell only depends on the runtime manifest and browser-native loading contract.
+
+## Shell Contract
 
 ```ts
-import { createMicroAppRuntimeState, mountMicroApp, waitForMicroAppReady } from '@micro-frontend/platform-sdk/shell'
+import { createMicroAppRuntimeState, mountMicroApp, waitForMicroAppReady } from '@openmf/core/shell'
 
 setRuntimeState(createMicroAppRuntimeState(appConfig, 'loading-assets'))
+
 await mountMicroApp(appConfig, container, {
   shellOrigin: window.location.origin,
   attributes: {
@@ -57,62 +70,55 @@ await mountMicroApp(appConfig, container, {
     'data-tenant': 'acme',
   },
 })
+
 setRuntimeState(createMicroAppRuntimeState(appConfig, 'mounting'))
 await waitForMicroAppReady(container)
 setRuntimeState(createMicroAppRuntimeState(appConfig, 'ready'))
 ```
 
-## Runtime States
+`waitForMicroAppReady()` waits for an explicit `micro-app:ready` event or visible rendered content, including shadow DOM. If the app never paints, the shell can show a controlled error fallback instead of a white screen.
 
-The SDK exposes a small runtime state model so every shell can show consistent loading, success, empty, and error UI instead of a blank surface.
-
-Supported phases:
-
-- `idle`
-- `resolving`
-- `loading-assets`
-- `mounting`
-- `ready`
-- `empty`
-- `error`
-- `unmounted`
-
-Use `waitForMicroAppReady()` after client-side mounting to keep a loading state visible until the remote app has produced renderable content or a timeout raises a controlled error.
-
-## MCPApps Capability Metadata
-
-Apps can declare:
-
-- tools
-- resources
-- prompts
-- event namespaces
-- platform scopes on the app manifest
-- MCP sandbox browser permissions as a dict/object, for example `{ clipboardWrite: {} }`
-- owner and version metadata
-
-This lets the same app act as a web micro frontend and an AI-native capability surface.
-
-## MCP Apps Bridge
-
-The SDK includes an optional bridge for hosts that render apps in a sandboxed iframe and communicate with JSON-RPC over `postMessage`.
+## Registry Validation
 
 ```ts
-import { callMcpHostTool, initializeMcpAppBridge } from '@micro-frontend/platform-sdk/client'
+import { createMicroAppRegistry, validateMicroAppRegistry } from '@openmf/core/registry'
 
-const bridge = initializeMcpAppBridge({ source: 'orders' })
+const issues = validateMicroAppRegistry(apps)
+if (issues.length) {
+  console.error(issues)
+}
 
-bridge.notify('ui/ready', { appId: 'orders' })
-
-await callMcpHostTool('orders.search', {
-  query: 'overdue invoices',
-})
+const registry = createMicroAppRegistry(apps)
 ```
 
-Shells can generate an iframe-ready HTML resource from the same app manifest:
+The registry validates required manifest fields, runtime configuration, duplicate ids, and rendering metadata before shell code tries to mount a remote.
+
+## MCP Apps
 
 ```ts
-import { createMcpAppHtml, createMcpAppResourceDescriptor } from '@micro-frontend/platform-sdk/mcp-app'
+import { connectOfficialMcpAppRuntime } from '@openmf/core/client'
+
+const runtime = await connectOfficialMcpAppRuntime({
+  name: 'Orders App',
+  version: '1.0.0',
+  capabilities: {
+    sampling: {},
+    serverTools: {},
+    modelContext: {},
+  },
+})
+
+if (runtime.status === 'connected') {
+  await runtime.updateModelContext('Visible tenant has two overdue invoices.')
+  const answer = await runtime.requestHostCompletion('Summarize the risk.')
+  await runtime.callServerTool('orders_summarize', { tenantId: 'acme' })
+}
+```
+
+Shells can expose the same app as an MCP Apps HTML resource:
+
+```ts
+import { createMcpAppHtml, createMcpAppResourceDescriptor } from '@openmf/core/mcp-app'
 
 const descriptor = createMcpAppResourceDescriptor(app, {
   shellOrigin: 'https://shell.example.com',
@@ -124,12 +130,12 @@ const html = createMcpAppHtml(app, {
 })
 ```
 
+MCP UI permissions are emitted as objects, for example `{ clipboardWrite: {} }`, which keeps the package compatible with current MCP Apps host validation.
+
 ## WebMCP Tools
 
-For browser agents, micro apps can register tab-bound WebMCP tools. Registration is a no-op when the browser does not expose `document.modelContext`.
-
 ```ts
-import { registerWebMcpTool } from '@micro-frontend/platform-sdk/client'
+import { registerWebMcpTool } from '@openmf/core/client'
 
 const registration = registerWebMcpTool({
   name: 'orders_summarize',
@@ -150,6 +156,24 @@ const registration = registerWebMcpTool({
 registration.unregister()
 ```
 
+Registration is a no-op when the browser does not expose `document.modelContext`.
+
+## Production Notes
+
+- Use bundled remote assets for production and preview, not Vite `/src/main.*` dev entries.
+- Keep design-system code either shared through runtime contracts or peer dependencies; do not rely on webpack singleton behavior.
+- Prefer hashed or versioned asset URLs for AI hosts and long-lived iframes.
+- Treat HTML fragments as trusted content and enforce CSP/resource domains at the shell boundary.
+- Emit runtime errors to the shell logger and render an error fallback for every remote surface.
+
+## Publish Check
+
+```bash
+pnpm --filter @openmf/core validate
+```
+
+This runs type-checking, builds `dist`, and performs `pnpm pack --dry-run` so you can inspect exactly what npm would receive.
+
 ## Status
 
-This package is POC/MVP ready. Treat the API as experimental until a `1.0.0` release.
+`0.x` is experimental while the manifest schema and MCP Apps adapters settle. The architecture is designed for Next.js RSC/SSR/SSG/ISR shells, CSR micro apps from any framework, and AI-native hosts that support MCP Apps-style interactive surfaces.

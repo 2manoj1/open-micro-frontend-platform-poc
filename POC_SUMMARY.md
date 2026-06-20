@@ -37,13 +37,13 @@ Each micro app owns its build, styles, manifest, runtime server, and deployment 
 
 The reusable platform SDK is split by consumer:
 
-- `@micro-frontend/platform-sdk/client`: micro app helpers such as `defineMicroAppElement` and event emission.
-- `@micro-frontend/platform-sdk/shell`: shell runtime helpers for loading, mounting, registry resolution, and HTML fragments.
-- `@micro-frontend/platform-sdk/next`: server-safe Next.js facade for shell teams.
-- `@micro-frontend/platform-sdk/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
-- `@micro-frontend/platform-sdk/event-bus`: browser-native CustomEvent bus.
+- `@openmf/core/client`: micro app helpers such as `defineMicroAppElement` and event emission.
+- `@openmf/core/shell`: shell runtime helpers for loading, mounting, registry resolution, and HTML fragments.
+- `@openmf/core/next`: server-safe Next.js facade for shell teams.
+- `@openmf/core/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
+- `@openmf/core/event-bus`: browser-native CustomEvent bus.
 
-The SDK is prepared for npm publishing later. The current package emits ESM and TypeScript declarations to `dist/`, supports subpath exports, and passes `pnpm --filter @micro-frontend/platform-sdk pack --dry-run`.
+The SDK is prepared for npm publishing later. The current package emits ESM and TypeScript declarations to `dist/`, supports subpath exports, and passes `pnpm --filter @openmf/core pack --dry-run`.
 
 ## Communication Model
 
@@ -85,7 +85,7 @@ Commands verified locally:
 ```bash
 pnpm lint
 pnpm build
-pnpm --filter @micro-frontend/platform-sdk pack --dry-run
+pnpm --filter @openmf/core pack --dry-run
 ```
 
 Runtime route sweep verified:

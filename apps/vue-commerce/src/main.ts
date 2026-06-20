@@ -1,5 +1,5 @@
 import { createApp, type App as VueAppInstance } from 'vue';
-import { defineMicroAppElement } from '@micro-frontend/platform-sdk/client';
+import { defineMicroAppElement } from '@openmf/core/client';
 import VueCommerceApp from './VueCommerceApp.vue';
 import './app.css';
 

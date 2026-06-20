@@ -88,7 +88,7 @@ micro-frontend-platform/
 ### EventBus Pattern
 Communication layer for loose coupling between apps:
 ```typescript
-import { eventBus, PlatformEvents } from '@micro-frontend/platform-sdk'
+import { eventBus, PlatformEvents } from '@openmf/core'
 
 // Subscribe
 eventBus.on(PlatformEvents.USER_LOGGED_IN, (event) => {

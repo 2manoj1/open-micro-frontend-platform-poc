@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@micro-frontend/platform-sdk'],
+  transpilePackages: ['@openmf/core'],
   devIndicators: false,
   images: {
     unoptimized: true,

@@ -2,7 +2,7 @@
 
 import { createElement, useEffect, useId, useState, type ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
-import type { MicroAppConfig } from '@micro-frontend/platform-sdk';
+import type { MicroAppConfig } from '@openmf/core';
 import { getDesignSystemComponentTag } from '@micro-frontend/design-system';
 
 interface RuntimeDesignSystemChromeProps {

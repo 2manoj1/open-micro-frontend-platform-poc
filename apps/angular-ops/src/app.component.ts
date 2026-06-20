@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { emitMicroAppEvent } from '@micro-frontend/platform-sdk/client';
+import { emitMicroAppEvent } from '@openmf/core/client';
 
 interface OperationSignal {
   label: string;

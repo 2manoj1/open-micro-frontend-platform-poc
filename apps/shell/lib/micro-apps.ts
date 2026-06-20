@@ -3,7 +3,7 @@ import {
   fetchMicroAppRegistry,
   type MicroAppConfig,
   type MicroAppRegistry,
-} from '@micro-frontend/platform-sdk'
+} from '@openmf/core'
 import { localMicroAppDefinitions, shellPlatformConfig, type LocalMicroAppDefinition } from '@/lib/platform-config'
 
 export async function getMicroAppRegistry(): Promise<MicroAppRegistry> {

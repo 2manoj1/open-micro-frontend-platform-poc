@@ -112,7 +112,7 @@ React, Vue, and Angular apps can either expose a Web Component or export a `moun
 
 Static, SSR, SSG, and ISR apps can be registered as `html-fragment` or `iframe` remotes. The included `knowledge` app demonstrates a static HTML fragment fetched and rendered through the shell's RSC path.
 
-Micro app teams should import `defineMicroAppElement` from `@micro-frontend/platform-sdk/client`. Shell teams should use the registry and render contracts from `@micro-frontend/platform-sdk/shell` or `@micro-frontend/platform-sdk/next`.
+Micro app teams should import `defineMicroAppElement` from `@openmf/core/client`. Shell teams should use the registry and render contracts from `@openmf/core/shell` or `@openmf/core/next`.
 
 Runtime failures are caught by the shell island fallback, emitted as `app:error`, and posted to the configured logger endpoint so the owning team can triage its remote independently.
 

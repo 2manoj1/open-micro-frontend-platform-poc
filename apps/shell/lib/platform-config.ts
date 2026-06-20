@@ -1,4 +1,4 @@
-import type { MicroAppFramework, MicroAppRenderingMode, MicroAppRuntime, MicroAppStatus } from '@micro-frontend/platform-sdk'
+import type { MicroAppFramework, MicroAppRenderingMode, MicroAppRuntime, MicroAppStatus } from '@openmf/core'
 
 export interface ShellPlatformConfig {
   shellName: string

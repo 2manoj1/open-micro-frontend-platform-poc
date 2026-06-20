@@ -84,15 +84,15 @@ The reusable runtime lives in `packages/platform-sdk`.
 
 SDK entrypoints:
 
-- `@micro-frontend/platform-sdk/client`: micro app helpers such as `defineMicroAppElement`, app event emission, and MCPApps event emission.
-- `@micro-frontend/platform-sdk/shell`: shell runtime helpers for registry resolution, HTML fragment fetches, observability, and client island mounting contracts.
-- `@micro-frontend/platform-sdk/next`: server-safe helpers and types for a Next.js shell.
-- `@micro-frontend/platform-sdk/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
-- `@micro-frontend/platform-sdk/runtime-state`: shared loading, ready, empty, error, and readiness helpers for shell renderers.
-- `@micro-frontend/platform-sdk/event-bus`: async browser event bus and MCP-oriented event names.
-- `@micro-frontend/platform-sdk/mcp-app`: MCP Apps bridge helpers, resource descriptors, and standalone HTML resource generation.
-- `@micro-frontend/platform-sdk/observability`: normalized error reporting and configurable loggers.
-- `@micro-frontend/platform-sdk/web-mcp`: browser-agent WebMCP tool registration helpers.
+- `@openmf/core/client`: micro app helpers such as `defineMicroAppElement`, app event emission, and MCPApps event emission.
+- `@openmf/core/shell`: shell runtime helpers for registry resolution, HTML fragment fetches, observability, and client island mounting contracts.
+- `@openmf/core/next`: server-safe helpers and types for a Next.js shell.
+- `@openmf/core/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
+- `@openmf/core/runtime-state`: shared loading, ready, empty, error, and readiness helpers for shell renderers.
+- `@openmf/core/event-bus`: async browser event bus and MCP-oriented event names.
+- `@openmf/core/mcp-app`: MCP Apps bridge helpers, resource descriptors, and standalone HTML resource generation.
+- `@openmf/core/observability`: normalized error reporting and configurable loggers.
+- `@openmf/core/web-mcp`: browser-agent WebMCP tool registration helpers.
 
 ## Shared Design System Without Module Federation
 
@@ -119,7 +119,7 @@ The `Design System Contract` micro app demonstrates this model in the dashboard.
 Micro app wrapper example:
 
 ```ts
-import { defineMicroAppElement, emitMcpAppEvent } from '@micro-frontend/platform-sdk/client'
+import { defineMicroAppElement, emitMcpAppEvent } from '@openmf/core/client'
 
 defineMicroAppElement('micro-orders-app', {
   mount(host, context) {
@@ -231,7 +231,7 @@ This starts the shell and each micro app as a separately built service. The shel
 ```bash
 pnpm lint
 pnpm build
-pnpm --filter @micro-frontend/platform-sdk pack --dry-run
+pnpm --filter @openmf/core pack --dry-run
 ```
 
 Verified locally:

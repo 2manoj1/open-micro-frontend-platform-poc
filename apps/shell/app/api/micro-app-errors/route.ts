@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import type { PlatformLogEntry } from '@micro-frontend/platform-sdk/observability'
+import type { PlatformLogEntry } from '@openmf/core/observability'
 
 export async function POST(request: NextRequest) {
   let entry: PlatformLogEntry

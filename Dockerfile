@@ -69,7 +69,7 @@ ENV NEXT_PUBLIC_DESIGN_SYSTEM_APP_STYLE_PATH=${NEXT_PUBLIC_DESIGN_SYSTEM_APP_STY
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @micro-frontend/design-system build
-RUN pnpm --filter @micro-frontend/platform-sdk build
+RUN pnpm --filter @openmf/core build
 RUN pnpm --filter "${APP_FILTER}" build
 
 ENV NODE_ENV=production

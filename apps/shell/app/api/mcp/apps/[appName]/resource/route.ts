@@ -1,4 +1,4 @@
-import { createMcpAppHtml } from '@micro-frontend/platform-sdk'
+import { createMcpAppHtml } from '@openmf/core'
 import { getMicroApp } from '@/lib/micro-apps'
 import { getPublicRequestOrigin } from '@/lib/request-origin'
 

@@ -1,4 +1,4 @@
-import { createMcpAppResourceDescriptor } from '@micro-frontend/platform-sdk'
+import { createMcpAppResourceDescriptor } from '@openmf/core'
 import { getMicroApps } from '@/lib/micro-apps'
 import { getPublicRequestOrigin } from '@/lib/request-origin'
 

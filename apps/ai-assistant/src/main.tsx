@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { defineMicroAppElement } from '@micro-frontend/platform-sdk/client';
+import { defineMicroAppElement } from '@openmf/core/client';
 import { AiAssistantApp } from './AiAssistantApp';
 import './app.css';
 

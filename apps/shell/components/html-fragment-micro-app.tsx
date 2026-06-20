@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { AlertCircle, CheckCircle2, FileText, Inbox } from 'lucide-react';
-import { fetchMicroAppHtmlFragment, normalizeError, type MicroAppConfig } from '@micro-frontend/platform-sdk';
+import { fetchMicroAppHtmlFragment, normalizeError, type MicroAppConfig } from '@openmf/core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export async function HtmlFragmentMicroApp({ appConfig }: { appConfig: MicroAppConfig }) {

@@ -7,7 +7,7 @@ import {
   isWebMcpAvailable,
   type OfficialMcpAppRuntime,
   registerWebMcpTool,
-} from '@micro-frontend/platform-sdk/client';
+} from '@openmf/core/client';
 
 interface Message {
   role: 'assistant' | 'user';

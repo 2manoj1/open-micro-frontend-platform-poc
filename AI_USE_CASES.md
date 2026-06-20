@@ -43,7 +43,7 @@ This is useful for:
 WebMCP is for frontend, tab-bound agent actions. The SDK exposes:
 
 ```ts
-import { registerWebMcpTool } from '@micro-frontend/platform-sdk/client'
+import { registerWebMcpTool } from '@openmf/core/client'
 
 registerWebMcpTool({
   name: 'assistant_summarize_platform_health',
