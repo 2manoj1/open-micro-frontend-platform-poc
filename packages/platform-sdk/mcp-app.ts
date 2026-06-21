@@ -599,7 +599,14 @@ export function createMcpAppHtml(app: MicroAppConfig, options: McpAppHtmlOptions
           const response = await fetch(${safeJson(entryUrl)}, { credentials: 'omit' });
           if (!response.ok) throw new Error('Unable to fetch HTML fragment: ' + response.status);
           root.innerHTML = await response.text();
-          post('ui/ready', { appId: context.app.id, mode: 'html-fragment' });
+          const mcpApps = context.app.capabilities?.mcpApps;
+          post('ui/ready', {
+            appId: context.app.id,
+            mode: 'html-fragment',
+            tools: mcpApps?.tools ?? [],
+            resources: mcpApps?.resources ?? [],
+            prompts: mcpApps?.prompts ?? [],
+          });
           return;
         }
 
@@ -616,7 +623,14 @@ export function createMcpAppHtml(app: MicroAppConfig, options: McpAppHtmlOptions
         element.setAttribute('data-version', context.app.version);
         element.setAttribute('data-mcp-hosted', 'true');
         root.replaceChildren(element);
-        post('ui/ready', { appId: context.app.id, tagName: runtime.tagName });
+        const mcpApps = context.app.capabilities?.mcpApps;
+        post('ui/ready', {
+          appId: context.app.id,
+          tagName: runtime.tagName,
+          tools: mcpApps?.tools ?? [],
+          resources: mcpApps?.resources ?? [],
+          prompts: mcpApps?.prompts ?? [],
+        });
       }
 
       mount().catch((error) => {

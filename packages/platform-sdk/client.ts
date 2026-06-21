@@ -48,15 +48,6 @@ export function defineMicroAppElement(
           },
         }).then((runtime) => {
           console.log(`[Platform SDK] connectOfficialMcpAppRuntime finished for: ${context.app.id}. Status:`, runtime.status);
-          const fullContext = (window as any).__MICRO_APP_CONTEXT__;
-          const mcpApps = fullContext?.app?.capabilities?.mcpApps;
-          console.log(`[Platform SDK] Notifying ui/ready for: ${context.app.id} with tools:`, mcpApps?.tools, "resources:", mcpApps?.resources);
-          notifyMcpHost('ui/ready', {
-            appId: context.app.id,
-            tools: mcpApps?.tools ?? [],
-            resources: mcpApps?.resources ?? [],
-            prompts: mcpApps?.prompts ?? [],
-          });
           return runtime;
         }).catch((error) => {
           console.warn(`[Platform SDK] Auto-connecting to MCP runtime for ${context.app.id} failed:`, error);
