@@ -45,7 +45,13 @@ export class EventBus {
 
     // Return unsubscribe function
     return () => {
-      this.listeners.get(eventType)?.delete(listener);
+      const set = this.listeners.get(eventType);
+      if (set) {
+        set.delete(listener);
+        if (set.size === 0) {
+          this.listeners.delete(eventType);
+        }
+      }
     };
   }
 

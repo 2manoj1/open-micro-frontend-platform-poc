@@ -29,6 +29,7 @@
     "docker:down": "docker compose down",
     "podman:build": "for service in customer billing analytics admin ai-assistant vue-commerce angular-ops design-system mcp-demo shell mcp-apps-server; do podman compose build \"$service\" || exit 1; done",
     "podman:up": "pnpm podman:build && podman compose up -d",
+    "podman:up:service": "podman compose up -d --build",
     "podman:down": "podman compose down",
     "podman:logs": "podman compose logs -f shell customer billing analytics admin ai-assistant vue-commerce angular-ops design-system mcp-demo mcp-apps-server"
   },

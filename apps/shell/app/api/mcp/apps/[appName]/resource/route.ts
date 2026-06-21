@@ -1,5 +1,5 @@
 import { createMcpAppHtml } from '@openmf/core'
-import { getMicroApp } from '@/lib/micro-apps'
+import { getMicroApp, resolveRelativeAppUrls } from '@/lib/micro-apps'
 import { getPublicRequestOrigin } from '@/lib/request-origin'
 
 interface RouteContext {
@@ -19,7 +19,8 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const origin = getPublicRequestOrigin(request)
-  const html = createMcpAppHtml(app, {
+  const absoluteApp = resolveRelativeAppUrls(app, origin)
+  const html = createMcpAppHtml(absoluteApp, {
     shellOrigin: origin,
     resourceOrigin: origin,
   })

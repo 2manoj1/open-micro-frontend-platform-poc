@@ -189,6 +189,7 @@ services:
       APP_KIND: mcp
       PORT: 8787
       SHELL_ORIGIN: http://shell:3001
+      PUBLIC_SHELL_ORIGIN: https://shell.manojmukherjee.co.in
       PUBLIC_MCP_ORIGIN: https://ai-assistant.manojmukherjee.co.in
       MCP_APPS_HOST_PROFILE: portable
       MCP_APPS_ASSET_VERSION: 0.8.0-podman

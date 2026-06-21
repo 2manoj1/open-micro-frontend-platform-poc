@@ -52,15 +52,23 @@ export function registerWebMcpTool<TInput = Record<string, unknown>>(
   const controller = options.signal ? undefined : new AbortController();
   const signal = options.signal ?? controller?.signal;
 
-  documentRef!.modelContext!.registerTool(tool as WebMcpToolDefinition, {
-    ...options,
-    signal,
-  });
+  try {
+    documentRef!.modelContext!.registerTool(tool as WebMcpToolDefinition, {
+      ...options,
+      signal,
+    });
 
-  return {
-    supported: true,
-    unregister: () => controller?.abort(),
-  };
+    return {
+      supported: true,
+      unregister: () => controller?.abort(),
+    };
+  } catch (error) {
+    console.error(`[Platform SDK] WebMCP registration for tool "${tool.name}" failed:`, error);
+    return {
+      supported: false,
+      unregister: () => {},
+    };
+  }
 }
 
 function getDocument(): Document | undefined {

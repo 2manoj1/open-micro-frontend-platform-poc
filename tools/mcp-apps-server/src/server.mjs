@@ -11,7 +11,8 @@ import { z } from 'zod';
 
 const PORT = Number(process.env.PORT ?? process.env.MCP_APPS_SERVER_PORT ?? 8787);
 const MCP_PATH = process.env.MCP_APPS_PATH ?? '/mcp';
-const SHELL_ORIGIN = trimTrailingSlash(process.env.PUBLIC_SHELL_ORIGIN ?? process.env.SHELL_ORIGIN ?? 'http://127.0.0.1:3001');
+const SHELL_ORIGIN = trimTrailingSlash(process.env.SHELL_ORIGIN ?? 'http://127.0.0.1:3001');
+const PUBLIC_SHELL_ORIGIN = trimTrailingSlash(process.env.PUBLIC_SHELL_ORIGIN ?? SHELL_ORIGIN);
 const PUBLIC_MCP_ORIGIN = trimTrailingSlash(process.env.PUBLIC_MCP_ORIGIN ?? `http://127.0.0.1:${PORT}`);
 const PUBLIC_APP_BASE_DOMAIN = process.env.PUBLIC_APP_BASE_DOMAIN ?? 'manojmukherjee.co.in';
 const PUBLIC_APP_PROTOCOL = process.env.PUBLIC_APP_PROTOCOL ?? 'https';
@@ -43,6 +44,7 @@ async function main() {
             chatgpt: `${MCP_PATH}/chatgpt`,
           },
           shellOrigin: SHELL_ORIGIN,
+          publicShellOrigin: PUBLIC_SHELL_ORIGIN,
           publicMcpOrigin: PUBLIC_MCP_ORIGIN,
           defaultHostProfile: MCP_APPS_HOST_PROFILE,
           assetVersion: MCP_APPS_ASSET_VERSION,
@@ -55,6 +57,7 @@ async function main() {
       if (request.method === 'GET' && url.pathname === '/apps') {
         sendJson(response, 200, {
           shellOrigin: SHELL_ORIGIN,
+          publicShellOrigin: PUBLIC_SHELL_ORIGIN,
           publicMcpOrigin: PUBLIC_MCP_ORIGIN,
           apps: cachedApps,
         });
@@ -200,6 +203,7 @@ async function main() {
     console.log(`[mcp-apps-server] listening on ${PUBLIC_MCP_ORIGIN}${MCP_PATH}`);
     console.log(`[mcp-apps-server] profiled paths ${PUBLIC_MCP_ORIGIN}${MCP_PATH}/claude, ${PUBLIC_MCP_ORIGIN}${MCP_PATH}/openai`);
     console.log(`[mcp-apps-server] shell origin ${SHELL_ORIGIN}`);
+    console.log(`[mcp-apps-server] public shell origin ${PUBLIC_SHELL_ORIGIN}`);
     console.log(`[mcp-apps-server] registered apps ${cachedApps.map((app) => app.id).join(', ') || '(none)'}`);
   });
 }
@@ -669,7 +673,11 @@ function toMcpServerApp(app) {
   const csp = ui.csp ?? {};
   const connectDomains = normalizeDomains(csp.connect_domains ?? csp.connectDomains, SHELL_ORIGIN);
   const resourceDomains = normalizeDomains(csp.resource_domains ?? csp.resourceDomains, SHELL_ORIGIN);
-  const appPublicOrigin = getPublicAppOrigin(app.id);
+  const appPublicOrigin = process.env[`MCP_APP_${toEnvKey(app.id)}_PUBLIC_ORIGIN`]
+    ? trimTrailingSlash(process.env[`MCP_APP_${toEnvKey(app.id)}_PUBLIC_ORIGIN`])
+    : app.app?.runtime?.type === 'html-fragment'
+      ? PUBLIC_SHELL_ORIGIN
+      : getPublicAppOrigin(app.id);
   const assetOrigins = collectAssetOrigins(csp);
   const publicConnectDomains = toPublicDomains(connectDomains, appPublicOrigin, assetOrigins);
   const publicResourceDomains = toPublicDomains(resourceDomains, appPublicOrigin, assetOrigins);
@@ -693,7 +701,7 @@ function toMcpServerApp(app) {
       resourceDomains: dedupe([...publicResourceDomains, PUBLIC_MCP_ORIGIN, appPublicOrigin]),
     },
     permissions: normalizeSandboxPermissions(ui.permissions),
-    individualUrl: `${SHELL_ORIGIN}/dashboard/${app.id}`,
+    individualUrl: `${PUBLIC_SHELL_ORIGIN}/dashboard/${app.id}`,
     tools: ui.tools ?? [],
     resources: ui.resources ?? [],
     prompts: ui.prompts ?? [],
@@ -806,11 +814,11 @@ function rewritePortableHtml(html, app) {
   let output = html;
 
   for (const origin of app.assetOrigins) {
-    if (!origin || origin === SHELL_ORIGIN) continue;
+    if (!origin || origin === SHELL_ORIGIN || origin === PUBLIC_SHELL_ORIGIN) continue;
     output = output.split(origin).join(app.appPublicOrigin);
   }
 
-  output = output.split(SHELL_ORIGIN).join(PUBLIC_MCP_ORIGIN);
+  output = output.split(SHELL_ORIGIN).join(PUBLIC_SHELL_ORIGIN);
   return output;
 }
 
@@ -874,7 +882,7 @@ function rewriteUrl(value, appPublicOrigin, assetOrigins) {
   }
 
   if (value.startsWith(SHELL_ORIGIN)) {
-    return value.replace(SHELL_ORIGIN, PUBLIC_MCP_ORIGIN);
+    return value.replace(SHELL_ORIGIN, PUBLIC_SHELL_ORIGIN);
   }
 
   return value;
@@ -895,7 +903,7 @@ function appendQueryParam(value, key, paramValue) {
 
 function toPublicDomains(domains, appPublicOrigin, assetOrigins) {
   return domains.map((domain) => {
-    if (domain === SHELL_ORIGIN) return PUBLIC_MCP_ORIGIN;
+    if (domain === SHELL_ORIGIN) return PUBLIC_SHELL_ORIGIN;
     if (assetOrigins.includes(domain)) return appPublicOrigin;
     return domain;
   });

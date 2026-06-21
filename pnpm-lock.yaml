@@ -216,6 +216,9 @@ importers:
       react-dom:
         specifier: 19.2.7
         version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: ^4.2.1
+        version: 4.4.3
     devDependencies:
       '@types/react':
         specifier: 19.2.17
@@ -358,8 +361,17 @@ importers:
     dependencies:
       '@modelcontextprotocol/ext-apps':
         specifier: 1.7.4
-        version: 1.7.4(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod@4.4.3)
+        version: 1.7.4(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod@3.25.76)
+      '@modelcontextprotocol/sdk':
+        specifier: 1.29.0
+        version: 1.29.0(zod@3.25.76)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
     devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.19.43
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -1985,6 +1997,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/node@20.19.43':
+    resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
+
   '@types/node@24.10.4':
     resolution: {integrity: sha512-vnDVpYPMzs4wunl27jHrfmwojOGKya0xyM3sH+UE5iv5uPS6vX7UIoh6m+vQc5LGBq52HBKPIn/zcSZVzeDEZg==}
 
@@ -3081,6 +3096,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
@@ -3240,6 +3258,9 @@ packages:
     resolution: {integrity: sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA==}
     peerDependencies:
       zod: ^3.25.28 || ^4
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
@@ -3842,14 +3863,36 @@ snapshots:
   '@lmdb/lmdb-win32-x64@3.5.4':
     optional: true
 
-  '@modelcontextprotocol/ext-apps@1.7.4(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod@4.4.3)':
+  '@modelcontextprotocol/ext-apps@1.7.4(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod@3.25.76)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
+      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
       '@standard-schema/spec': 1.1.0
-      zod: 4.4.3
+      zod: 3.25.76
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
+
+  '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
+    dependencies:
+      '@hono/node-server': 1.19.14(hono@4.12.25)
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      content-type: 1.0.5
+      cors: 2.8.6
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.1.0
+      express: 5.2.1
+      express-rate-limit: 8.5.2(express@5.2.1)
+      hono: 4.12.25
+      jose: 6.2.3
+      json-schema-typed: 8.0.2
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.2(zod@3.25.76)
+    transitivePeerDependencies:
+      - supports-color
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.4.3)':
     dependencies:
@@ -4356,6 +4399,10 @@ snapshots:
     optional: true
 
   '@types/estree@1.0.8': {}
+
+  '@types/node@20.19.43':
+    dependencies:
+      undici-types: 6.21.0
 
   '@types/node@24.10.4':
     dependencies:
@@ -5576,6 +5623,8 @@ snapshots:
 
   typescript@6.0.3: {}
 
+  undici-types@6.21.0: {}
+
   undici-types@7.16.0: {}
 
   unpipe@1.0.0: {}
@@ -5678,9 +5727,15 @@ snapshots:
       y18n: 5.0.8
       yargs-parser: 22.0.0
 
+  zod-to-json-schema@3.25.2(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
+
   zod-to-json-schema@3.25.2(zod@4.4.3):
     dependencies:
       zod: 4.4.3
+
+  zod@3.25.76: {}
 
   zod@4.4.3: {}
 

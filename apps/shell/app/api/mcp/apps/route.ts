@@ -1,5 +1,5 @@
 import { createMcpAppResourceDescriptor } from '@openmf/core'
-import { getMicroApps } from '@/lib/micro-apps'
+import { getMicroApps, resolveRelativeAppUrls } from '@/lib/micro-apps'
 import { getPublicRequestOrigin } from '@/lib/request-origin'
 
 export async function GET(request: Request) {
@@ -12,20 +12,21 @@ export async function GET(request: Request) {
     apps: apps
       .filter((app) => app.capabilities?.mcpApps?.enabled)
       .map((app) => {
-        const resourceUrl = new URL(`/api/mcp/apps/${app.id}/resource`, origin).toString()
-        const descriptor = createMcpAppResourceDescriptor(app, {
+        const absoluteApp = resolveRelativeAppUrls(app, origin)
+        const resourceUrl = new URL(`/api/mcp/apps/${absoluteApp.id}/resource`, origin).toString()
+        const descriptor = createMcpAppResourceDescriptor(absoluteApp, {
           shellOrigin: origin,
           resourceUrl,
         })
 
         return {
-          id: app.id,
-          name: app.name,
-          description: app.description,
-          framework: app.framework,
-          rendering: app.rendering,
-          app,
-          manifestUrl: new URL(`/api/mcp/apps/${app.id}/manifest`, origin).toString(),
+          id: absoluteApp.id,
+          name: absoluteApp.name,
+          description: absoluteApp.description,
+          framework: absoluteApp.framework,
+          rendering: absoluteApp.rendering,
+          app: absoluteApp,
+          manifestUrl: new URL(`/api/mcp/apps/${absoluteApp.id}/manifest`, origin).toString(),
           resourceUrl,
           descriptor,
         }

@@ -85,6 +85,8 @@ The reusable runtime lives in `packages/platform-sdk`.
 SDK entrypoints:
 
 - `@openmf/core/client`: micro app helpers such as `defineMicroAppElement`, app event emission, and MCPApps event emission.
+- `@openmf/core/configurable-app`: unified, framework-agnostic app definition (`definePlatformApp`) for browser Custom Element mounting and auto-mcp iframe adapters.
+- `@openmf/core/configurable-app-server`: standalone Node.js server runners (`startPlatformAppServer`) and unified multi-app MCP gateways (`createUnifiedMcpServer`).
 - `@openmf/core/shell`: shell runtime helpers for registry resolution, HTML fragment fetches, observability, and client island mounting contracts.
 - `@openmf/core/next`: server-safe helpers and types for a Next.js shell.
 - `@openmf/core/registry`: injectable registry sources for inline, async, local, or remote JSON manifests.
@@ -160,6 +162,7 @@ The shell also exposes MCP Apps-compatible resource endpoints:
 - `GET /api/mcp/apps`: lists all MCP-capable apps and their descriptors.
 - `GET /api/mcp/apps/{appId}/manifest`: returns one app descriptor with `_meta.ui.resourceUri`, CSP domains, tools, resources, prompts, and permissions.
 - `GET /api/mcp/apps/{appId}/resource`: returns standalone HTML that can be sandboxed by an AI host iframe and mounted without the normal shell page.
+- `GET /api/mcp` and `POST /api/mcp`: unified shell JSON-RPC endpoint (Streamable HTTP transport) that acts as the platform-wide gateway, exposing all registered micro-apps' tools, resources, and prompts under a single consolidation server.
 
 The HTML resource imports the app bundle and styles at runtime, mounts the Web Component or HTML fragment, and forwards platform events to the host over JSON-RPC-shaped `postMessage` notifications. Micro apps can also call host tools through the SDK bridge when an MCP Apps host is present, while continuing to work normally in the browser shell or PWA path.
 

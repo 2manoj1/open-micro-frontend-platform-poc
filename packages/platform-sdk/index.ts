@@ -8,3 +8,5 @@ export * from './observability.js';
 export * from './registry.js';
 export * from './runtime-state.js';
 export * from './web-mcp.js';
+export * from './configurable-app.js';
+export * from './configurable-app-server.js';

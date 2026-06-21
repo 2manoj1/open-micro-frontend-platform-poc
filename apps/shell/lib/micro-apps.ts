@@ -93,3 +93,43 @@ function resolveAppUrl(definition: LocalMicroAppDefinition, origin: string | und
 
   return new URL(path, origin).toString()
 }
+
+export function resolveRelativeAppUrls(app: MicroAppConfig, origin: string): MicroAppConfig {
+  const absoluteApp = { ...app }
+  if (absoluteApp.entryUrl && absoluteApp.entryUrl.startsWith('/')) {
+    absoluteApp.entryUrl = new URL(absoluteApp.entryUrl, origin).toString()
+  }
+  if (absoluteApp.manifestUrl && absoluteApp.manifestUrl.startsWith('/')) {
+    absoluteApp.manifestUrl = new URL(absoluteApp.manifestUrl, origin).toString()
+  }
+  if (absoluteApp.url && absoluteApp.url.startsWith('/')) {
+    absoluteApp.url = new URL(absoluteApp.url, origin).toString()
+  }
+  if (absoluteApp.styleUrls) {
+    absoluteApp.styleUrls = absoluteApp.styleUrls.map((url) =>
+      url.startsWith('/') ? new URL(url, origin).toString() : url
+    )
+  }
+  if (
+    absoluteApp.runtime &&
+    (absoluteApp.runtime.type === 'html-fragment' || absoluteApp.runtime.type === 'iframe') &&
+    absoluteApp.runtime.url &&
+    absoluteApp.runtime.url.startsWith('/')
+  ) {
+    absoluteApp.runtime = {
+      ...absoluteApp.runtime,
+      url: new URL(absoluteApp.runtime.url, origin).toString(),
+    }
+  }
+  if (absoluteApp.capabilities?.mcpApps?.manifestUrl && absoluteApp.capabilities.mcpApps.manifestUrl.startsWith('/')) {
+    absoluteApp.capabilities = {
+      ...absoluteApp.capabilities,
+      mcpApps: {
+        ...absoluteApp.capabilities.mcpApps,
+        manifestUrl: new URL(absoluteApp.capabilities.mcpApps.manifestUrl, origin).toString(),
+      },
+    }
+  }
+  return absoluteApp
+}
+

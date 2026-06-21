@@ -94,6 +94,14 @@
       "types": "./dist/web-mcp.d.ts",
       "import": "./dist/web-mcp.js"
     },
+    "./configurable-app": {
+      "types": "./dist/configurable-app.d.ts",
+      "import": "./dist/configurable-app.js"
+    },
+    "./configurable-app-server": {
+      "types": "./dist/configurable-app-server.d.ts",
+      "import": "./dist/configurable-app-server.js"
+    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -106,9 +114,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/ext-apps": "1.7.4"
+    "@modelcontextprotocol/ext-apps": "1.7.4",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/node": "^20",
     "typescript": "6.0.3"
   }
 }

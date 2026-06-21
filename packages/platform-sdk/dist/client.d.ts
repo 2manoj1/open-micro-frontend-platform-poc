@@ -1,6 +1,7 @@
 import { PlatformEvents } from './event-bus.js';
 import type { MicroAppContext } from './micro-app.js';
 import { type PlatformLogger } from './observability.js';
+export declare const platformAppConfigs: Map<string, any>;
 export interface MicroAppElementLifecycle {
     mount: (host: HTMLElement, context: MicroAppContext) => void | (() => void | Promise<void>) | Promise<void | (() => void | Promise<void>)>;
     unmount?: (host: HTMLElement) => void | Promise<void>;
